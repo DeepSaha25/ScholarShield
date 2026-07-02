@@ -39,6 +39,11 @@ In the Compact smart contract:
 *   **Private Witness**: The student's actual GPA and family income. These remain local to the student's machine and are used strictly as private inputs to calculate the ZK proof. 
 *   **Selective Disclosure via `disclose()`**: We deliberately use `disclose()` in the constructor to publish the scholarship rules (`min_gpa` and `max_income`) to the ledger. In contrast, the student's inputs to `verify_eligibility` are private by default and are **never** passed to `disclose()`, keeping them entirely hidden from public eyes.
 
+### 🛡️ Level 2 Privacy Claims:
+1. **Mathematical Sufficiency**: The student proves that $GPA \ge min\_gpa$ and $Income \le max\_income$ using local WASM zero-knowledge circuits execution.
+2. **Zero Information Leak**: The actual numeric value of the student's GPA and family income never leave the client's device, nor are they written to the public ledger.
+3. **Observer Blindness**: External network validators, node operators, and third-party block explorers can only witness a valid transaction proof signature being registered on the Midnight blockchain. They learn absolutely nothing about the student's academic performance or financial situation.
+
 ---
 
 ## 📸 Level 1 Verification Proofs
