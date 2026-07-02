@@ -1,22 +1,33 @@
-# ScholarShield 🛡️ | Privacy-Preserving Scholarship Verification on Midnight 🌙
+# ScholarShield 🛡️
 
-This project is a decentralized application built on the **Midnight Network** using the **Compact** smart contract language. It enables students to verify their eligibility for scholarships without exposing their raw GPA, family income, or personal documents to the scholarship portal.
+### *Privacy-Preserving Scholarship Verification on Midnight*
 
 ---
 
-## 💡 Product Proposal: ZK Scholarship Verification
+[![Midnight Network](https://img.shields.io/badge/Network-Midnight-blueviolet?style=for-the-badge)](https://midnight.network)
+[![Language](https://img.shields.io/badge/Language-Compact-orange?style=for-the-badge)](https://midnight.network)
+[![Tested With](https://img.shields.io/badge/Tested%20With-Vitest-yellow?style=for-the-badge)](https://vitest.dev)
+[![State](https://img.shields.io/badge/Level-1%20Complete-success?style=for-the-badge)](#)
 
-### The Problem
-Traditional scholarship applications require uploading sensitive, unencrypted PDFs of government identity documents, income certificates, and academic transcripts. These files are stored in centralized databases, presenting massive targets for identity theft, data leaks, and unauthorized tracking.
+ScholarShield is a privacy-first decentralized application built on the **Midnight Network** using the **Compact** smart contract language. It enables students to verify their eligibility for scholarships without exposing their raw GPA, family income, or personal documents to the scholarship portal.
 
-### The ZK Solution
-Using Midnight's privacy-first model:
-1. **Trusted Issuers** (Universities, Tax Departments) cryptographically sign digital credentials (e.g., family income statement, CGPA transcript) for a student's digital wallet.
-2. The **Scholarship Portal** defines eligibility rules (e.g., GPA $\ge$ 8.0, Family Income $\le$ 250,000 INR) on the public ledger.
-3. The **Student** inputs their private credentials into the zero-knowledge circuit, generating a cryptographic proof that they meet the rules.
-4. The **Compact Contract** verifies the proof on-chain and returns a simple binary confirmation: **Eligible** or **Not Eligible**. 
+---
 
-*The portal never sees or stores the student's actual GPA, income, or ID documents.*
+## 💡 Product Concept
+
+### The Problem vs. The ZK Solution
+
+| ❌ The Traditional Problem | 🛡️ The ScholarShield Solution (ZK) |
+| :--- | :--- |
+| **Centralized Target**: Portals require uploading unencrypted PDFs of ID cards, income certificates, and transcripts. | **Zero Document Storage**: No sensitive documents are uploaded or stored. Verification is entirely mathematical. |
+| **Data Leaks & Identity Theft**: Transcripts and identity cards are stored in databases susceptible to leaks. | **Data Minimization**: The portal only sees a cryptographic confirmation that criteria are met. |
+| **Lack of Student Control**: Students have to share all their private data to prove simple thresholds. | **Selective Disclosure**: Students generate a ZK proof locally on their wallet, proving eligibility privately. |
+
+### How it Works (ZK Workflow)
+1. 🏫 **Issuer signs credentials**: Trusted authorities (e.g. Universities, Tax Authorities) issue digitally signed credentials (GPA, income details) to the student's private wallet.
+2. ⚙️ **Rules defined on-chain**: The scholarship board publishes public threshold rules (e.g. $GPA \ge 8.0$, $Income \le 250,000$ INR) on the Midnight ledger.
+3. 🔒 **Private Witness**: The student inputs their private credentials locally to generate a zero-knowledge proof.
+4. 🚀 **On-chain Verification**: The Compact smart contract verifies the ZK proof and confirms eligibility without learning the student's actual GPA or income.
 
 ---
 
