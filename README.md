@@ -8,6 +8,8 @@
 [![Language](https://img.shields.io/badge/Language-Compact-orange?style=for-the-badge)](https://midnight.network)
 [![Tested With](https://img.shields.io/badge/Tested%20With-Vitest-yellow?style=for-the-badge)](https://vitest.dev)
 [![State](https://img.shields.io/badge/Level-2%20Complete-success?style=for-the-badge)](#)
+[![CI](https://github.com/DeepSaha25/ScholarShield/actions/workflows/ci.yaml/badge.svg)](https://github.com/DeepSaha25/ScholarShield/actions/workflows/ci.yaml)
+[![Deploy on Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/DeepSaha25/ScholarShield&root=frontend)
 
 ScholarShield is a privacy-first decentralized application built on the **Midnight Network** using the **Compact** smart contract language. It enables students to verify their eligibility for scholarships without exposing their raw GPA, family income, or personal documents to the scholarship portal.
 
