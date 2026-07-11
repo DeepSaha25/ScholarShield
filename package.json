@@ -8,10 +8,10 @@
   },
   "scripts": {
     "compile": "compact compile contracts/scholarship.compact contracts/managed/scholarship",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' vitest run",
-    "test:local": "MIDNIGHT_NETWORK=local yarn test",
-    "test:preview": "MIDNIGHT_NETWORK=preview yarn test",
-    "test:preprod": "MIDNIGHT_NETWORK=preprod yarn test",
+    "test": "cross-env NODE_OPTIONS='--experimental-vm-modules' vitest run",
+    "test:local": "cross-env MIDNIGHT_NETWORK=local yarn test",
+    "test:preview": "cross-env MIDNIGHT_NETWORK=preview yarn test",
+    "test:preprod": "cross-env MIDNIGHT_NETWORK=preprod yarn test",
     "deploy:preprod": "MIDNIGHT_NETWORK=preprod vite-node scripts/deploy.ts",
     "env:up": "docker compose up -d --wait",
     "env:down": "docker compose down",
@@ -21,12 +21,12 @@
     "validate": "yarn env:up && yarn test:local; yarn env:down"
   },
   "dependencies": {
-    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
     "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
     "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
     "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.1.1",
-    "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
     "@midnight-ntwrk/testkit-js": "4.1.1",
     "@midnight-ntwrk/wallet-sdk": "1.0.0",
     "axios": "^1.15.0",
@@ -39,6 +39,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/ws": "^8.5.9",
+    "cross-env": "^10.1.0",
     "typescript": "^5.7.0",
     "vitest": "^4.1.0"
   },

@@ -1,16 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
-import { createUnprovenCallTx, submitTxAsync } from '@midnight-ntwrk/midnight-js-contracts';
+import { createUnprovenCallTx, createUnprovenDeployTx, submitTxAsync } from '@midnight-ntwrk/midnight-js-contracts';
+import { sampleSigningKey } from '@midnight-ntwrk/compact-runtime';
 import { Contract } from './managed/contract/index.js';
 import { WalletProvider, useWallet } from './contexts/WalletContext';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 // Pre-deployed contract address on Midnight Preprod.
 // Update this when you have a real deployed address.
-const PREPROD_CONTRACT_ADDRESS = 'UPDATE_WITH_YOUR_PREPROD_CONTRACT_ADDRESS';
+const PREPROD_CONTRACT_ADDRESS = localStorage.getItem('PREPROD_CONTRACT_ADDRESS') || 'UPDATE_WITH_YOUR_PREPROD_CONTRACT_ADDRESS';
+
 // Scholarship criteria (must match what the contract was deployed with)
 const MIN_GPA_THRESHOLD = 800; // 8.0 GPA scaled ×100
 const MAX_INCOME_THRESHOLD = 250000; // ₹2,50,000 INR
+
 
 // ─── Compiled Contract ──────────────────────────────────────────────────────
 function getCompiledContract() {
@@ -153,6 +156,90 @@ function PrivacyFlowViz({ status }: { status: VerifyStatus }) {
         🔐 <strong style={{ color: 'var(--text-primary)' }}>Your actual GPA and income are never sent to the network.</strong>{' '}
         The Midnight blockchain only records a cryptographic proof that you satisfy the eligibility threshold — nothing more.
       </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin Deploy Portal (Only visible when contract is not deployed)
+// ─────────────────────────────────────────────────────────────────────────────
+function AdminDeployPortal() {
+  const { session, isConnected } = useWallet();
+  const [status, setStatus] = useState<'idle' | 'deploying' | 'deployed' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [deployedAddress, setDeployedAddress] = useState<string | null>(null);
+
+  const handleDeploy = useCallback(async () => {
+    if (!session || !isConnected) return;
+    setStatus('deploying');
+    setErrorMsg(null);
+
+    try {
+      const compiledContract = getCompiledContract();
+      const initialPrivateState = {};
+
+      const deployTxData = await createUnprovenDeployTx(session.providers as any, {
+        compiledContract,
+        args: [BigInt(MIN_GPA_THRESHOLD), BigInt(MAX_INCOME_THRESHOLD)],
+        privateStateId: 'DeployerState',
+        initialPrivateState,
+        signingKey: sampleSigningKey(),
+      });
+
+      const contractAddress = deployTxData.public.contractAddress;
+      
+      await submitTxAsync(session.providers as any, {
+        unprovenTx: deployTxData.private.unprovenTx,
+      });
+
+      setDeployedAddress(contractAddress);
+      localStorage.setItem('PREPROD_CONTRACT_ADDRESS', contractAddress);
+      setStatus('deployed');
+      
+      // Reload page to apply the new contract address
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+      
+    } catch (e: any) {
+      setStatus('error');
+      setErrorMsg(e?.message ?? String(e));
+    }
+  }, [session, isConnected]);
+
+  return (
+    <div className="card" style={{ border: '2px solid var(--accent-purple)' }}>
+      <h2 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '6px' }}>⚙️ Admin: Deploy Contract</h2>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px' }}>
+        Since no contract address is configured, you must deploy the scholarship contract to the Preprod network first.
+      </p>
+
+      {status === 'idle' || status === 'error' ? (
+        <button className="btn btn-primary btn-block" onClick={handleDeploy}>
+          🚀 Deploy ScholarShield Contract
+        </button>
+      ) : status === 'deploying' ? (
+        <button className="btn btn-primary btn-block" disabled>
+          <span className="spinner" style={{ width: '18px', height: '18px', borderWidth: '2px' }}></span>
+          Deploying to Preprod... (Check Wallet)
+        </button>
+      ) : (
+        <div className="result-box eligible">
+          <div style={{ fontSize: '2rem', marginBottom: '8px' }}>✅</div>
+          <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '4px' }}>Successfully Deployed!</div>
+          <div style={{ fontSize: '0.85rem', opacity: 0.8, fontFamily: 'monospace' }}>
+            Address: {deployedAddress}
+          </div>
+          <div style={{ marginTop: '10px', fontSize: '0.8rem' }}>Reloading application...</div>
+        </div>
+      )}
+
+      {status === 'error' && errorMsg && (
+        <div className="result-box ineligible" style={{ marginTop: '16px' }}>
+          <div style={{ fontWeight: 600, marginBottom: '4px' }}>⚠️ Deployment Failed</div>
+          <div style={{ fontSize: '0.85rem', opacity: 0.8, wordBreak: 'break-word' }}>{errorMsg}</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -392,6 +479,8 @@ export default function App() {
             </div>
           )}
         </div>
+      ) : PREPROD_CONTRACT_ADDRESS === 'UPDATE_WITH_YOUR_PREPROD_CONTRACT_ADDRESS' ? (
+        <AdminDeployPortal />
       ) : (
         <StudentPortal />
       )}
