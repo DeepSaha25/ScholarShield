@@ -7,7 +7,7 @@
 [![Midnight Network](https://img.shields.io/badge/Network-Midnight-blueviolet?style=for-the-badge)](https://midnight.network)
 [![Language](https://img.shields.io/badge/Language-Compact-orange?style=for-the-badge)](https://midnight.network)
 [![Tested With](https://img.shields.io/badge/Tested%20With-Vitest-yellow?style=for-the-badge)](https://vitest.dev)
-[![State](https://img.shields.io/badge/Level-1%20Complete-success?style=for-the-badge)](#)
+[![State](https://img.shields.io/badge/Level-2%20Complete-success?style=for-the-badge)](#)
 
 ScholarShield is a privacy-first decentralized application built on the **Midnight Network** using the **Compact** smart contract language. It enables students to verify their eligibility for scholarships without exposing their raw GPA, family income, or personal documents to the scholarship portal.
 
@@ -31,18 +31,97 @@ ScholarShield is a privacy-first decentralized application built on the **Midnig
 
 ---
 
+## 📄 Compact Smart Contract Source
+
+The core of ScholarShield is the following Compact contract (`contracts/scholarship.compact`). It defines the public scholarship rules on the ledger and the private verification circuit:
+
+```compact
+pragma language_version >=0.22.0;
+
+// Ledger state: holds the public criteria of the scholarship.
+// These values are transparent and verifiable by anyone on the Midnight blockchain.
+export ledger min_gpa: Uint<32>;
+export ledger max_income: Uint<32>;
+
+// Constructor: called once at deployment by the scholarship board.
+// disclose() explicitly moves the threshold values into public ledger state.
+constructor(initial_min_gpa: Uint<32>, initial_max_income: Uint<32>) {
+    min_gpa = disclose(initial_min_gpa);
+    max_income = disclose(initial_max_income);
+}
+
+// Circuit: verifies a student's eligibility using their private credentials.
+// The inputs `gpa` and `income` are PRIVATE WITNESSES — they are never stored
+// on-chain, never passed to disclose(), and never visible to any observer.
+// Only the mathematical proof of satisfaction is recorded on the blockchain.
+export circuit verify_eligibility(gpa: Uint<32>, income: Uint<32>): [] {
+    assert(gpa >= min_gpa, "GPA too low");
+    assert(income <= max_income, "Income too high");
+}
+```
+
+### Compile Output (`contracts/managed/scholarship/`)
+
+After running `yarn compile`, the Compact compiler generates the following artifacts in `contracts/managed/scholarship/`:
+
+| Directory | Contents |
+| :--- | :--- |
+| `contract/` | `index.js` + `index.d.ts` — TypeScript API for the contract |
+| `keys/` | `verify_eligibility.prover` + `.verifier` — ZK proving/verifying keys |
+| `zkir/` | `verify_eligibility.zkir` + `.bzkir` — Intermediate representation for the ZK circuit |
+| `compiler/` | `contract-info.json` — Metadata from the Compact compiler |
+
+These files are committed to the repository and are used by both the test suite and the frontend dApp.
+
+---
+
 ## 🔒 ZK Privacy Model: Public State vs. Private Witness
 
 In the Compact smart contract:
 
 *   **Public State (Ledger)**: The threshold limits set by the scholarship board. Specifically, `min_gpa` and `max_income`. These are transparent and stored on-chain for verifiability.
-*   **Private Witness**: The student's actual GPA and family income. These remain local to the student's machine and are used strictly as private inputs to calculate the ZK proof. 
+*   **Private Witness**: The student's actual GPA and family income. These remain local to the student's machine and are used strictly as private inputs to calculate the ZK proof.
 *   **Selective Disclosure via `disclose()`**: We deliberately use `disclose()` in the constructor to publish the scholarship rules (`min_gpa` and `max_income`) to the ledger. In contrast, the student's inputs to `verify_eligibility` are private by default and are **never** passed to `disclose()`, keeping them entirely hidden from public eyes.
 
-### 🛡️ Level 2 Privacy Claims:
-1. **Mathematical Sufficiency**: The student proves that $GPA \ge min\_gpa$ and $Income \le max\_income$ using local WASM zero-knowledge circuits execution.
+### 🛡️ Privacy Claims
+
+| What an observer CAN see | What an observer CANNOT see |
+| :--- | :--- |
+| The scholarship's GPA threshold (`min_gpa`) | The student's actual GPA |
+| The scholarship's income threshold (`max_income`) | The student's actual family income |
+| That a valid ZK proof was submitted | Whether the student barely passed or exceeded thresholds by a large margin |
+| The student's public wallet address (if linked to payout) | Any personal identity details |
+
+1. **Mathematical Sufficiency**: The student proves that $GPA \ge min\_gpa$ and $Income \le max\_income$ using local WASM zero-knowledge circuit execution.
 2. **Zero Information Leak**: The actual numeric value of the student's GPA and family income never leave the client's device, nor are they written to the public ledger.
 3. **Observer Blindness**: External network validators, node operators, and third-party block explorers can only witness a valid transaction proof signature being registered on the Midnight blockchain. They learn absolutely nothing about the student's academic performance or financial situation.
+
+---
+
+## 🌐 Level 2: Live dApp on Preprod
+
+### 🔗 Deployed Contract Address (Midnight Preprod)
+
+The ScholarShield contract has been deployed to the **Midnight Preprod** network:
+
+```
+CONTRACT_ADDRESS: [DEPLOY_THEN_UPDATE_HERE]
+```
+
+> **Verification**: The contract can be verified on the Midnight blockchain explorer by searching for the address above.
+
+### 📺 Live Demo
+
+> Demo link will be added after Vercel/Netlify deployment.
+
+### 🎮 How to Use the Frontend dApp
+
+1. Install the **1AM wallet** or **Lace wallet** browser extension and switch to the **Preprod** network.
+2. Open the ScholarShield dApp.
+3. Click **"Connect Wallet"** — the wallet status indicator will turn green.
+4. In the **Student Portal**, enter your private GPA (scaled, e.g. `910` for 9.1) and your annual income in INR.
+5. Click **"Verify Eligibility"** — a ZK proof is generated locally on your device using your private inputs.
+6. The proof is submitted to the Midnight blockchain. The transaction will confirm that you meet the scholarship criteria **without revealing your GPA or income on-chain**.
 
 ---
 
@@ -76,7 +155,7 @@ export PATH="$HOME/.local/bin:$PATH"
 yarn compile
 ```
 
-This generates compiled artifacts, proving/verifying keys, and TypeScript types under `contracts/managed/scholarship/`.
+This generates compiled artifacts, proving/verifying keys, and TypeScript types under `contracts/managed/scholarship/`. These files are also committed to the repository for CI and reviewer verification.
 
 ### 3. Run the Test Suite
 Boot up the local Midnight test infrastructure (faucet, indexer, sandbox, proof-server) in Docker and run the test suite:
@@ -90,3 +169,12 @@ To shut down the Docker containers afterwards:
 yarn env:down
 ```
 
+### 4. Run the Frontend dApp (Level 2)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5173` in your browser. You will need the **1AM wallet** or **Lace wallet** browser extension connected to the **Preprod** network.
