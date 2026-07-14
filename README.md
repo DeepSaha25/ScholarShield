@@ -107,7 +107,7 @@ In the Compact smart contract:
 The ScholarShield contract has been deployed to the **Midnight Preprod** network:
 
 ```
-CONTRACT_ADDRESS: [DEPLOY_THEN_UPDATE_HERE]
+CONTRACT_ADDRESS: d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e
 ```
 
 > **Verification**: The contract can be verified on the Midnight blockchain explorer by searching for the address above.
