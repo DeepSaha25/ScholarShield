@@ -1,8 +1,6 @@
 # ScholarShield
 
-**Privacy-Preserving Scholarship Verification on Midnight**
-
----
+**Privacy-Preserving Scholarship Verification on the Midnight Network**
 
 [![Midnight Network](https://img.shields.io/badge/Network-Midnight-blueviolet?style=for-the-badge)](https://midnight.network)
 [![Language](https://img.shields.io/badge/Language-Compact-orange?style=for-the-badge)](https://midnight.network)
@@ -12,161 +10,168 @@
 [![Deploy on Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/DeepSaha25/ScholarShield&root=frontend)
 [![X (Twitter) Follow](https://img.shields.io/twitter/follow/georgian_deep?style=for-the-badge)](https://x.com/georgian_deep)
 
-ScholarShield is a privacy-first decentralized application built on the **Midnight Network** using the **Compact** smart contract language. It enables students to verify their eligibility for scholarships without exposing their raw GPA, family income, or personal documents to the scholarship portal.
+---
+
+## Abstract
+
+ScholarShield is a decentralized application (dApp) engineered on the **Midnight Network** utilizing the **Compact** smart contract language. The platform serves as a Zero-Knowledge (ZK) eligibility gate for academic scholarships. It allows students to cryptographically prove that they meet stringent academic and financial requirements (such as minimum GPA and maximum family income) without ever exposing their raw, sensitive data to centralized portals, scholarship boards, or the public blockchain ledger.
 
 ---
 
-## Executive Summary & Hackathon Progression
+## Table of Contents
 
-This repository represents a structured progression through the "New Moon to Full" builder journey. Below is the comprehensive documentation categorized by the specific requirements of Levels 1 through 4.
+1. [Architectural Overview](#architectural-overview)
+2. [Zero-Knowledge Privacy Model](#zero-knowledge-privacy-model)
+3. [Smart Contract Implementation](#smart-contract-implementation)
+4. [Hackathon Progression (Levels 1-4)](#hackathon-progression-levels-1-4)
+5. [Project Showcase & Verification Proofs](#project-showcase--verification-proofs)
+6. [Local Development & Setup Guide](#local-development--setup-guide)
 
 ---
 
-## Level 1 Requirements: Setup & First Contract
+## Architectural Overview
 
-### Goal
-Toolchain setup, first Compact contract, deploy on Preview/Preprod, seed initial idea.
+ScholarShield bridges modern web infrastructure with cutting-edge cryptographic privacy networks.
 
-### Product Concept & Proposal
-**Chosen Idea:** Age / Eligibility Gate (prove a threshold without revealing the underlying value).
+- **Smart Contract Layer:** Written in Compact (`scholarship.compact`), compiled to WebAssembly (WASM) and Zero-Knowledge Intermediate Representation (ZKIR). Deployed on the Midnight Preprod network.
+- **Frontend Application Layer:** Built with React, TypeScript, and Vite. Styled using a custom cyber-grid aesthetic via Tailwind CSS.
+- **Wallet Infrastructure:** Integrated with the `@midnight-ntwrk/dapp-connector-api` to interface directly with the 1AM and Lace browser extension wallets for local proof generation and transaction signing.
+- **Testing & CI/CD:** End-to-end testing utilizing Vitest and local Docker-based Midnight environments. Automated CI/CD pipelines via GitHub Actions.
 
-ScholarShield acts as an eligibility gate for scholarships, proving that a student's GPA and Income meet specific thresholds without revealing the underlying numbers to the scholarship provider or the public ledger.
+---
 
-**The Problem vs. The Zero-Knowledge Solution**
-- **Centralized Target:** Traditional portals require uploading unencrypted PDFs of ID cards, income certificates, and transcripts. 
-  **Solution:** No sensitive documents are uploaded or stored. Verification is entirely mathematical.
-- **Data Leaks & Identity Theft:** Transcripts and identity cards are stored in databases susceptible to leaks. 
-  **Solution:** The portal only sees a cryptographic confirmation that criteria are met.
-- **Lack of Student Control:** Students have to share all their private data to prove simple thresholds. 
-  **Solution:** Students generate a Zero-Knowledge proof locally on their wallet, proving eligibility privately.
+## Zero-Knowledge Privacy Model
 
-### Compact Smart Contract Overview
-The core of ScholarShield is the Compact contract (`contracts/scholarship.compact`), which defines public scholarship rules on the ledger and the private verification circuit.
+The core value proposition of ScholarShield is absolute data privacy for applicants. 
+
+### The Traditional Vulnerability
+In legacy systems, students must upload unencrypted, highly sensitive documents (tax returns, university transcripts, national IDs) to centralized databases. These databases are prime targets for data breaches, resulting in severe identity theft.
+
+### The ScholarShield ZK Solution
+ScholarShield eliminates the need for data transmission. Verification is entirely mathematical.
+
+1. **Public State (Ledger Data):** The scholarship board publishes the eligibility thresholds (`min_gpa` and `max_income`) to the public Midnight ledger. These values are fully transparent and verifiable by any observer.
+2. **Private Witness (User Data):** The student inputs their actual GPA and family income locally into their browser. These values are designated as "private witnesses" in the Compact circuit.
+3. **Local Proof Generation:** The student's browser wallet runs a localized Zero-Knowledge circuit. It checks if the private witness data satisfies the public state thresholds.
+4. **On-Chain Verification:** The wallet submits a cryptographic proof to the Midnight blockchain. The network validators verify the math without ever seeing the underlying private inputs.
+
+**Observer Matrix:**
+- **Visible on-chain:** The scholarship thresholds, the user's public address, the fact that a valid proof was submitted.
+- **Hidden permanently:** The student's actual GPA, their family's actual income, and the margin by which they exceeded or missed the threshold.
+
+---
+
+## Smart Contract Implementation
+
+The Compact contract (`contracts/scholarship.compact`) is designed for maximum security and data minimization.
 
 ```compact
 pragma language_version >=0.22.0;
 
-// Ledger state: holds the public criteria of the scholarship.
-// These values are transparent and verifiable by anyone on the Midnight blockchain.
 export ledger min_gpa: Uint<32>;
 export ledger max_income: Uint<32>;
 
-// Constructor: called once at deployment by the scholarship board.
-// disclose() explicitly moves the threshold values into public ledger state.
+// The constructor utilizes disclose() to explicitly make the thresholds public.
 constructor(initial_min_gpa: Uint<32>, initial_max_income: Uint<32>) {
     min_gpa = disclose(initial_min_gpa);
     max_income = disclose(initial_max_income);
 }
 
-// Circuit: verifies a student's eligibility using their private credentials.
-// The inputs `gpa` and `income` are PRIVATE WITNESSES — they are never stored
-// on-chain, never passed to disclose(), and never visible to any observer.
-// Only the mathematical proof of satisfaction is recorded on the blockchain.
+// The verification circuit accepts private witnesses (gpa, income).
+// Because disclose() is NOT used here, the inputs remain mathematically shielded.
 export circuit verify_eligibility(gpa: Uint<32>, income: Uint<32>): [] {
-    assert(gpa >= min_gpa, "GPA too low");
-    assert(income <= max_income, "Income too high");
+    assert(gpa >= min_gpa, "GPA does not meet minimum requirement");
+    assert(income <= max_income, "Income exceeds maximum threshold");
 }
 ```
 
-### Level 1 Verification Artifacts
-- **Toolchain & Compilation:** Successfully compiled via `compact compile`.
-- **Compile Output Image:** 
-  ![Successful Compilation](./sub%20assets/yarn%20compile%20ss.png)
+---
+
+## Hackathon Progression (Levels 1-4)
+
+This repository fulfills the strict progression requirements of the "New Moon to Full" Midnight Builder Journey.
+
+### Level 1: Setup & First Contract
+- **Objective:** Establish the WSL2/Docker toolchain, write the foundational Compact contract, and document the product proposal (Age / Eligibility Gate).
+- **Status:** Complete. The contract successfully compiles, generating the required `zkir` and `bzkir` proving artifacts.
+
+### Level 2: Frontend Integration
+- **Objective:** Develop a robust frontend interface and establish wallet connectivity.
+- **Status:** Complete. The application successfully interfaces with the 1AM wallet via the Midnight DApp Connector API.
+- **Deployed Contract Address (Preprod):** `d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e`
+
+### Level 3: Production-Grade dApp
+- **Objective:** Implement automated testing, Continuous Integration (CI/CD), and a polished user interface.
+- **Status:** Complete. Vitest suites assert both successful verification and expected failure modes. GitHub Actions workflows automatically test the contract on every push.
+
+### Level 4: MVP Goes Live
+- **Objective:** Deploy the frontend to a production CDN, finalize documentation, and establish a public brand presence.
+- **Status:** Complete.
+  - **Live Application:** [https://scholar-shield-ten.vercel.app/](https://scholar-shield-ten.vercel.app/)
+  - **Demo Video Presentation:** [Watch on Google Drive](https://drive.google.com/file/d/1YUe91VBOKsM_-cpF4jBO_dhbyJyNmcWX/view?usp=sharing)
+  - **Public Brand Presence (X Profile):** [https://x.com/georgian_deep](https://x.com/georgian_deep)
 
 ---
 
-## Level 2 Requirements: Frontend Integration
+## Project Showcase & Verification Proofs
 
-### Goal
-Wire the contract to a frontend UI, connect Lace wallet on Preprod.
-
-### Frontend Infrastructure
-- **Wallet Connection:** Implemented Lace and 1AM wallet connect/disconnect functionality.
-- **Circuit Invocation:** The `verify_eligibility` circuit is successfully called directly from the frontend using the `@midnight-ntwrk/dapp-connector-api`.
-
-### Live Deployment Information
-- **Deployed Contract Address (Midnight Preprod):**
-  `d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e`
-
----
-
-## Level 3 Requirements: Production-Grade dApp
-
-### Goal
-Polished dApp, tests, CI/CD, approved idea implementation.
-
-### Privacy Model Documentation
-In the Compact smart contract architecture:
-- **Public State (Ledger):** The threshold limits set by the scholarship board (`min_gpa` and `max_income`). These are transparent and stored on-chain.
-- **Private Witness:** The student's actual GPA and family income. These remain local to the student's machine and are used strictly as private inputs.
-- **Selective Disclosure:** We deliberately use `disclose()` in the constructor to publish the scholarship rules. The student's inputs to `verify_eligibility` are private by default and are never passed to `disclose()`.
-
-**Observer Blindness Matrix:**
-- **Visible to Observers:** The scholarship's GPA/Income thresholds, that a valid ZK proof was submitted, the user's public wallet address.
-- **Hidden from Observers:** The student's actual GPA, actual family income, personal identity details, or the margin by which they passed the threshold.
-
-### Continuous Integration & Testing
-- **Test Suite:** Minimum of 3 tests passing locally utilizing Vitest.
-  ![Passing Tests](./sub%20assets/test%20output.png)
-- **CI/CD Pipeline:** Fully functional GitHub Actions pipeline triggered on push.
-  ![CI/CD Pipeline](./sub%20assets/cicd%20ss.png)
-
-### User Interface Showcase
-The application utilizes a modern, cyber-grid aesthetic with premium UI/UX interactions.
+### User Interface 
 ![UI Screenshot 1](./sub%20assets/ui1.png)
 ![UI Screenshot 2](./sub%20assets/ui2.png)
 ![UI Screenshot 3](./sub%20assets/ui3.png)
 
----
+### CI/CD Pipeline
+![CI/CD Pipeline](./sub%20assets/cicd%20ss.png)
 
-## Level 4 Requirements: MVP Goes Live
+### Contract Compilation Artifacts
+![Successful Compilation](./sub%20assets/yarn%20compile%20ss.png)
 
-### Goal
-MVP live on Preprod, comprehensive documentation, CI/CD, public product (X) profile.
-
-### Minimum Viable Product Live Links
-- **Live Application:** [https://scholar-shield-ten.vercel.app/](https://scholar-shield-ten.vercel.app/)
-- **Demo Video Presentation:** [Watch on Google Drive](https://drive.google.com/file/d/1YUe91VBOKsM_-cpF4jBO_dhbyJyNmcWX/view?usp=sharing)
-- **Public Brand Presence (X Profile):** [https://x.com/georgian_deep](https://x.com/georgian_deep)
+### Automated Test Suite Execution
+![Passing Tests](./sub%20assets/test%20output.png)
 
 ---
 
-## Setup & Local Development Instructions
+## Local Development & Setup Guide
 
-### System Prerequisites
-- Windows Subsystem for Linux 2 (WSL2)
-- Docker Desktop (with WSL2 integration enabled)
-- Node.js (v22+) and Yarn
+For developers and auditors wishing to verify the Zero-Knowledge circuits and run the application locally, please follow these instructions carefully.
 
-### 1. Install Dependencies
-Run the following within the root workspace directory inside the WSL2 environment:
+### 1. System Requirements
+- **OS:** Windows Subsystem for Linux 2 (WSL2 - Ubuntu 24.04/26.04) or native Linux/macOS.
+- **Containerization:** Docker Desktop with WSL2 integration enabled.
+- **Runtime:** Node.js (v22.0.0 or higher) and Yarn package manager.
+
+### 2. Dependency Initialization
+Clone the repository and install the workspace dependencies from the root directory:
 ```bash
+git clone https://github.com/DeepSaha25/ScholarShield.git
+cd ScholarShield
 yarn install
 ```
 
-### 2. Compile the Smart Contract
-Compile the Compact zero-knowledge circuits and generate TypeScript interfaces:
+### 3. Smart Contract Compilation
+Compile the Compact zero-knowledge circuits into intermediate representation and generate the strictly-typed TypeScript interfaces:
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 yarn compile
 ```
-This generates compiled artifacts under `contracts/managed/scholarship/`.
+*Note: This command populates the `contracts/managed/scholarship/` directory with the necessary prover keys and API definitions.*
 
-### 3. Run the Test Suite
-Initialize the local Midnight test infrastructure (faucet, indexer, sandbox, proof-server) in Docker and execute the tests:
+### 4. Running the Local Midnight Network and Test Suite
+To run the automated tests, you must initialize the local Midnight Docker network (which spins up a local indexer, proof-server, and blockchain node):
 ```bash
 yarn env:up
 yarn test:local
 ```
-To terminate the Docker containers:
+Once testing is complete, gracefully terminate the Docker instances to free up system resources:
 ```bash
 yarn env:down
 ```
 
-### 4. Run the Frontend Application
+### 5. Running the Frontend Application
+To run the React frontend locally and interact with the smart contract:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Navigate to `http://localhost:5173` in your browser. A supported browser wallet (1AM or Lace) connected to the Preprod network is required.
+Navigate to `http://localhost:5173`. You must have the **1AM wallet** browser extension installed and configured to the appropriate network (Local or Preprod) to interact with the application.
