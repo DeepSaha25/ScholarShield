@@ -14,7 +14,6 @@ export default function App() {
     <Router>
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <NavBar />
-        <WalletBanner />
         
         <main className="main-content" style={{ flex: '1 0 auto' }}>
           <Routes>
