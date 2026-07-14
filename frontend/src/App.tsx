@@ -2,19 +2,21 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { WalletProvider } from './contexts/WalletContext';
 import NavBar from './components/NavBar';
+import WalletBanner from './components/WalletBanner';
+import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import VerifyPage from './pages/VerifyPage';
 import AdminPage from './pages/AdminPage';
 import AboutPage from './pages/AboutPage';
-import { PREPROD_CONTRACT_ADDRESS } from './config';
 
 export default function App() {
   return (
     <Router>
-      <div className="app-container">
+      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <NavBar />
+        <WalletBanner />
         
-        <main className="main-content">
+        <main className="main-content" style={{ flex: '1 0 auto' }}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/verify" element={<VerifyPage />} />
@@ -23,14 +25,7 @@ export default function App() {
           </Routes>
         </main>
 
-        <footer className="footer">
-          <p>
-            ScholarShield · Built on <a href="https://midnight.network" target="_blank" rel="noreferrer" className="text-accent">Midnight Network</a> · Zero-Knowledge Privacy
-          </p>
-          <p className="footer-contract mt-sm">
-            Contract: <code>{PREPROD_CONTRACT_ADDRESS}</code>
-          </p>
-        </footer>
+        <Footer />
       </div>
     </Router>
   );
