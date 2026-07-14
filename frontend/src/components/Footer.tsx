@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Github, Twitter, Mail } from 'lucide-react';
+import { Shield, Code, Globe, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -17,8 +17,8 @@ export default function Footer() {
             Privacy-preserving eligibility verification built on the Midnight Network using Zero-Knowledge proofs.
           </p>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-            <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Github size={20} /></a>
-            <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Twitter size={20} /></a>
+            <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Code size={20} /></a>
+            <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Globe size={20} /></a>
             <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Mail size={20} /></a>
           </div>
         </div>
