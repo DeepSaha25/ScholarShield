@@ -116,9 +116,10 @@ CONTRACT_ADDRESS: d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da328
 
 > **Verification**: The contract can be verified on the Midnight blockchain explorer by searching for the address above.
 
-### 📺 Live Demo
+### 📺 Live Demo & Video Presentation
 
-> Demo link will be added after Vercel/Netlify deployment.
+- **Live Application**: [https://scholar-shield-ten.vercel.app/](https://scholar-shield-ten.vercel.app/)
+- **Demo Video**: [Watch on Google Drive](https://drive.google.com/file/d/1YUe91VBOKsM_-cpF4jBO_dhbyJyNmcWX/view?usp=sharing)
 
 ### 🎮 How to Use the Frontend dApp
 
@@ -131,7 +132,15 @@ CONTRACT_ADDRESS: d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da328
 
 ---
 
-## 📸 Level 1 Verification Proofs
+## 📸 Project Showcase & Verification Proofs
+
+### UI Showcase
+![UI Screenshot 1](./sub%20assets/ui1.png)
+![UI Screenshot 2](./sub%20assets/ui2.png)
+![UI Screenshot 3](./sub%20assets/ui3.png)
+
+### CI/CD Pipeline
+![CI/CD Pipeline](./sub%20assets/cicd%20ss.png)
 
 ### Successful Compilation (Circuits Generated)
 ![Successful Compilation](./sub%20assets/yarn%20compile%20ss.png)
