@@ -42,6 +42,10 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  background-image: 
+    linear-gradient(to right, #1a1a1a 1px, transparent 1px),
+    linear-gradient(to bottom, #1a1a1a 1px, transparent 1px);
+  background-size: 50px 50px;
 }
 
 a {
@@ -181,6 +185,10 @@ a {
   font-size: 0.95rem;
 }
 
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
 .btn-primary {
   background-color: var(--accent-color);
   color: #000;
@@ -267,6 +275,7 @@ a {
 .input-field:focus {
   outline: none;
   border-color: var(--border-focus);
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
 }
 
 .input-field:disabled {
@@ -371,6 +380,7 @@ a {
 .result-box.success {
   border-color: var(--accent-color);
   color: var(--accent-color);
+  background-color: rgba(0, 255, 102, 0.05);
 }
 
 .result-box.error {

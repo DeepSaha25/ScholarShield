@@ -4,7 +4,7 @@ import { createUnprovenCallTx, submitTxAsync } from '@midnight-ntwrk/midnight-js
 import { Contract } from '../managed/contract/index.js';
 import { useWallet } from '../contexts/WalletContext';
 import PrivacyFlowViz from '../components/PrivacyFlowViz';
-import { CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
 import { PREPROD_CONTRACT_ADDRESS, MIN_GPA_THRESHOLD, MAX_INCOME_THRESHOLD } from '../config';
 
 type VerifyStatus = 'idle' | 'proving' | 'submitting' | 'eligible' | 'ineligible' | 'error';
@@ -155,6 +155,7 @@ export default function VerifyPage() {
                 onChange={(e) => setGpaRaw(e.target.value)}
                 disabled={isProcessing || status === 'eligible' || status === 'ineligible'}
               />
+              <div className="text-secondary mt-xs" style={{ fontSize: '0.8rem' }}>Enter a value between 0.0 and 10.0</div>
             </div>
             <div className="input-group">
               <label htmlFor="input-income">Annual Family Income (₹)</label>
@@ -169,17 +170,29 @@ export default function VerifyPage() {
                 onChange={(e) => setIncomeRaw(e.target.value)}
                 disabled={isProcessing || status === 'eligible' || status === 'ineligible'}
               />
+              <div className="text-secondary mt-xs" style={{ fontSize: '0.8rem' }}>Enter total income in INR</div>
             </div>
           </div>
 
           {status === 'idle' || status === 'error' ? (
-            <button
-              className="btn btn-primary btn-block"
-              onClick={handleVerify}
-              disabled={!gpaRaw || !incomeRaw || !isConnected}
-            >
-              Verify Eligibility (Generate ZK Proof)
-            </button>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                className="btn btn-primary"
+                style={{ flex: 2 }}
+                onClick={handleVerify}
+                disabled={!gpaRaw || !incomeRaw || !isConnected}
+              >
+                Verify Eligibility
+              </button>
+              <button
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+                onClick={reset}
+                disabled={!gpaRaw && !incomeRaw && !errorMsg}
+              >
+                Clear
+              </button>
+            </div>
           ) : isProcessing ? (
             <button className="btn btn-primary btn-block" disabled>
               <Loader2 className="spinner-icon mr-sm" size={18} />
@@ -195,8 +208,18 @@ export default function VerifyPage() {
             <div className="result-box success mt-lg">
               <CheckCircle size={32} className="mb-sm" />
               <div className="result-title">Eligible for Scholarship!</div>
-              <div className="result-desc">Your ZK proof was verified on-chain. Your data remained private.</div>
-              {txId && <div className="result-tx">Tx: {txId}</div>}
+              <div className="result-desc mb-sm">Your ZK proof was verified on-chain. Your data remained private.</div>
+              {txId && (
+                <a 
+                  href={`https://explorer.1am.xyz/tx/${txId}?network=preprod`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                >
+                  View on Explorer <ExternalLink size={16} />
+                </a>
+              )}
             </div>
           )}
 
@@ -204,7 +227,18 @@ export default function VerifyPage() {
             <div className="result-box error mt-lg">
               <XCircle size={32} className="mb-sm" />
               <div className="result-title">Not Eligible</div>
-              <div className="result-desc">Your credentials do not satisfy the thresholds. Data remained private.</div>
+              <div className="result-desc mb-sm">Your credentials do not satisfy the thresholds. Data remained private.</div>
+              {txId && (
+                <a 
+                  href={`https://explorer.1am.xyz/tx/${txId}?network=preprod`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                >
+                  View on Explorer <ExternalLink size={16} />
+                </a>
+              )}
             </div>
           )}
 
