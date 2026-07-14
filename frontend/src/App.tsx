@@ -488,7 +488,7 @@ export default function App() {
       <footer>
         <p>ScholarShield · Built on <a href="https://midnight.network" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-purple)' }}>Midnight Network</a> · Zero-Knowledge Privacy</p>
         <p style={{ marginTop: '4px', fontSize: '0.8rem' }}>
-          Contract: <code style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.04)', padding: '2px 6px', borderRadius: '4px' }}>{PREPROD_CONTRACT_ADDRESS.slice(0, 20)}…</code>
+          Contract: <code style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.04)', padding: '2px 6px', borderRadius: '4px', wordBreak: 'break-all' }}>{PREPROD_CONTRACT_ADDRESS}</code>
         </p>
       </footer>
     </div>
