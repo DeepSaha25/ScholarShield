@@ -20,12 +20,22 @@ ScholarShield is a decentralized application (dApp) engineered on the **Midnight
 
 ## Table of Contents
 
-1. [Architectural Overview](#architectural-overview)
-2. [Zero-Knowledge Privacy Model](#zero-knowledge-privacy-model)
-3. [Smart Contract Implementation](#smart-contract-implementation)
-4. [Hackathon Progression (Levels 1-4)](#hackathon-progression-levels-1-4)
-5. [Project Showcase & Verification Proofs](#project-showcase--verification-proofs)
-6. [Local Development & Setup Guide](#local-development--setup-guide)
+1. [Official Submission Links](#official-submission-links)
+2. [Architectural Overview](#architectural-overview)
+3. [Zero-Knowledge Privacy Model](#zero-knowledge-privacy-model)
+4. [Smart Contract Implementation](#smart-contract-implementation)
+5. [Hackathon Progression (Levels 1-4)](#hackathon-progression-levels-1-4)
+6. [Project Showcase & Verification Proofs](#project-showcase--verification-proofs)
+7. [Local Development & Setup Guide](#local-development--setup-guide)
+
+---
+
+## Official Submission Links
+
+- **Live Application (Vercel):** [https://scholar-shield-ten.vercel.app/](https://scholar-shield-ten.vercel.app/)
+- **Deployed Contract (Midnight Preprod):** [d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e](https://preprod.midnightexplorer.com/contracts/d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e)
+- **Demo Video Presentation:** [Watch on Google Drive](https://drive.google.com/file/d/1YUe91VBOKsM_-cpF4jBO_dhbyJyNmcWX/view?usp=sharing)
+- **Public Brand Presence (X Profile):** [https://x.com/georgian_deep](https://x.com/georgian_deep)
 
 ---
 
@@ -98,7 +108,8 @@ This repository fulfills the strict progression requirements of the "New Moon to
 ### Level 2: Frontend Integration
 - **Objective:** Develop a robust frontend interface and establish wallet connectivity.
 - **Status:** Complete. The application successfully interfaces with the 1AM wallet via the Midnight DApp Connector API.
-- **Deployed Contract Address (Preprod):** `d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e`
+- **Deployed Contract Address (Preprod):** 
+  [d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e](https://preprod.midnightexplorer.com/contracts/d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e)
 
 ### Level 3: Production-Grade dApp
 - **Objective:** Implement automated testing, Continuous Integration (CI/CD), and a polished user interface.
@@ -108,6 +119,7 @@ This repository fulfills the strict progression requirements of the "New Moon to
 - **Objective:** Deploy the frontend to a production CDN, finalize documentation, and establish a public brand presence.
 - **Status:** Complete.
   - **Live Application:** [https://scholar-shield-ten.vercel.app/](https://scholar-shield-ten.vercel.app/)
+  - **Deployed Contract (Preprod):** [d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e](https://preprod.midnightexplorer.com/contracts/d13aabcf0599f9453f42637207303fb22ea0ed1f1bc8d34b56fe0f338da3287e)
   - **Demo Video Presentation:** [Watch on Google Drive](https://drive.google.com/file/d/1YUe91VBOKsM_-cpF4jBO_dhbyJyNmcWX/view?usp=sharing)
   - **Public Brand Presence (X Profile):** [https://x.com/georgian_deep](https://x.com/georgian_deep)
 
