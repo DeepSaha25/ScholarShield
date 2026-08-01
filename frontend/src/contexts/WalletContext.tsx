@@ -88,21 +88,28 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const disconnectPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const disconnect = useCallback(() => {
     setAddress(null);
     setIsConnected(false);
     setSession(null);
     setWalletStatus('checking');
     setWalletType(null);
+    // Clean up any previous disconnect poll
+    if (disconnectPollRef.current) {
+      clearInterval(disconnectPollRef.current);
+    }
     // Re-poll for wallet after disconnect
     const startedAt = Date.now();
     const id = setInterval(() => {
       const w1am = (window as any).midnight?.['1am'];
       const wLace = (window as any).midnight?.mnLace;
-      if (w1am) { setWalletType('1am'); setWalletStatus('detected'); clearInterval(id); return; }
-      if (wLace) { setWalletType('lace'); setWalletStatus('detected'); clearInterval(id); return; }
-      if (Date.now() - startedAt >= 3000) { setWalletStatus('not-found'); clearInterval(id); }
+      if (w1am) { setWalletType('1am'); setWalletStatus('detected'); clearInterval(id); disconnectPollRef.current = null; return; }
+      if (wLace) { setWalletType('lace'); setWalletStatus('detected'); clearInterval(id); disconnectPollRef.current = null; return; }
+      if (Date.now() - startedAt >= 3000) { setWalletStatus('not-found'); clearInterval(id); disconnectPollRef.current = null; }
     }, 200);
+    disconnectPollRef.current = id;
   }, []);
 
   return (
