@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, AlertCircle, Loader2, ExternalLink } from 'lucide
 import { PREPROD_CONTRACT_ADDRESS, MIN_GPA_THRESHOLD, MAX_INCOME_THRESHOLD } from '../config';
 import StatusBadge from '../components/StatusBadge';
 import { explorerTxUrl } from '../constants';
+import { saveProof } from '../lib/proofHistory';
 
 type VerifyStatus = 'idle' | 'proving' | 'submitting' | 'eligible' | 'ineligible' | 'error';
 
@@ -70,14 +71,32 @@ export default function VerifyPage() {
       setTxId(typeof id === 'string' ? id : id?.txHash ?? 'confirmed');
 
       const passes = gpaScaled >= BigInt(MIN_GPA_THRESHOLD) && incomeBig <= BigInt(MAX_INCOME_THRESHOLD);
-      setStatus(passes ? 'eligible' : 'ineligible');
+      const newStatus = passes ? 'eligible' : 'ineligible';
+      setStatus(newStatus);
+      
+      saveProof({
+        result: newStatus,
+        txId: typeof id === 'string' ? id : id?.txHash ?? undefined,
+        gpaRange: `${Math.floor(gpaValue)}-${Math.ceil(gpaValue)}`,
+        incomeRange: `${Math.floor(incomeValue / 50000) * 50}k-${Math.ceil(incomeValue / 50000) * 50}k`,
+      });
     } catch (e: any) {
       const msg: string = e?.message ?? String(e);
       if (msg.includes('GPA too low') || msg.includes('Income too high') || msg.toLowerCase().includes('assert')) {
         setStatus('ineligible');
+        saveProof({
+          result: 'ineligible',
+          gpaRange: `${Math.floor(gpaValue)}-${Math.ceil(gpaValue)}`,
+          incomeRange: `${Math.floor(incomeValue / 50000) * 50}k-${Math.ceil(incomeValue / 50000) * 50}k`,
+        });
       } else {
         setStatus('error');
         setErrorMsg(msg);
+        saveProof({
+          result: 'error',
+          gpaRange: `${Math.floor(gpaValue)}-${Math.ceil(gpaValue)}`,
+          incomeRange: `${Math.floor(incomeValue / 50000) * 50}k-${Math.ceil(incomeValue / 50000) * 50}k`,
+        });
       }
     }
   }, [session, isConnected, gpaRaw, incomeRaw]);
