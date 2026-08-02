@@ -20,7 +20,8 @@ export function buildProviders(
     return {
         privateStateProvider: levelPrivateStateProvider({
             privateStateStoreName: `scholarship-${Date.now()}`,
-            privateStoragePasswordProvider: () => 'Scholarship-Test-Password',
+        privateStoragePasswordProvider: () =>
+            process.env['MIDNIGHT_PRIVATE_STATE_PASSWORD'] ?? 'Scholarship-Test-Password',
             accountId: wallet.getCoinPublicKey(),
         }),
         publicDataProvider: indexerPublicDataProvider(
