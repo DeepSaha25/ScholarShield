@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, CheckCircle, XCircle, FileText } from 'lucide-react';
-import { getStats, ProofRecord } from '../lib/proofHistory';
+import { BarChart3, CheckCircle, XCircle, FileText, ExternalLink } from 'lucide-react';
+import { getStats, getProofHistory, ProofRecord } from '../lib/proofHistory';
+import { explorerTxUrl } from '../constants';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({ total: 0, passed: 0, failed: 0 });
+  const [history, setHistory] = useState<ProofRecord[]>([]);
 
   useEffect(() => {
     setStats(getStats());
+    setHistory(getProofHistory());
   }, []);
   return (
     <div className="page-container">
@@ -34,6 +37,52 @@ export default function DashboardPage() {
             <div className="text-3xl font-bold" style={{ color: '#ff4444' }}>{stats.failed}</div>
             <div className="text-secondary text-sm uppercase tracking-widest mt-xs">Ineligible</div>
           </div>
+        </div>
+
+        <div className="card">
+          <h2 className="title-md mb-md">Proof History</h2>
+          {history.length === 0 ? (
+            <p className="text-secondary text-center py-md">No proofs submitted yet.</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Date</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)', fontWeight: 600 }}>GPA Range</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Income Range</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Result</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Transaction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((record) => (
+                    <tr key={record.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '1rem 0.5rem' }}>{new Date(record.timestamp).toLocaleString()}</td>
+                      <td style={{ padding: '1rem 0.5rem' }}>{record.gpaRange}</td>
+                      <td style={{ padding: '1rem 0.5rem' }}>{record.incomeRange}</td>
+                      <td style={{ padding: '1rem 0.5rem' }}>
+                        {record.result === 'eligible' ? (
+                          <span style={{ color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14} /> Eligible</span>
+                        ) : record.result === 'ineligible' ? (
+                          <span style={{ color: '#ff4444', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><XCircle size={14} /> Ineligible</span>
+                        ) : (
+                          <span style={{ color: '#ffaa00' }}>Error</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '1rem 0.5rem' }}>
+                        {record.txId ? (
+                          <a href={explorerTxUrl(record.txId)} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-secondary)' }}>
+                            View <ExternalLink size={14} />
+                          </a>
+                        ) : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
