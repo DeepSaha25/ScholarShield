@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, CheckCircle, XCircle, FileText, ExternalLink } from 'lucide-react';
-import { getStats, getProofHistory, ProofRecord } from '../lib/proofHistory';
+import { BarChart3, CheckCircle, XCircle, FileText, ExternalLink, Trash2 } from 'lucide-react';
+import { getStats, getProofHistory, clearProofHistory, ProofRecord } from '../lib/proofHistory';
 import { explorerTxUrl } from '../constants';
 
 export default function DashboardPage() {
@@ -11,6 +11,15 @@ export default function DashboardPage() {
     setStats(getStats());
     setHistory(getProofHistory());
   }, []);
+
+  const handleClear = () => {
+    if (window.confirm('Are you sure you want to clear your proof history?')) {
+      clearProofHistory();
+      setStats({ total: 0, passed: 0, failed: 0 });
+      setHistory([]);
+    }
+  };
+
   return (
     <div className="page-container">
       <div className="max-w-3xl mx-auto">
@@ -40,7 +49,18 @@ export default function DashboardPage() {
         </div>
 
         <div className="card">
-          <h2 className="title-md mb-md">Proof History</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 className="title-md">Proof History</h2>
+            {history.length > 0 && (
+              <button 
+                onClick={handleClear}
+                className="btn btn-secondary btn-sm"
+                style={{ color: '#ff4444', borderColor: '#ff4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <Trash2 size={14} /> Clear
+              </button>
+            )}
+          </div>
           {history.length === 0 ? (
             <p className="text-secondary text-center py-md">No proofs submitted yet.</p>
           ) : (
