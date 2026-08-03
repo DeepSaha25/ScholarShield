@@ -8,9 +8,25 @@ const logger = pino({ level: 'info', transport: { target: 'pino-pretty' } });
 const network = process.env['MIDNIGHT_NETWORK'] ?? 'local';
 
 function resolveSecret(net: string): WalletSecret {
-  const mnemonic = process.env[`MIDNIGHT_${net.toUpperCase()}_MNEMONIC`]?.trim().replace(/\s+/g, ' ');
+  const upper = net.toUpperCase();
+  const mnemonicEnv = `MIDNIGHT_${upper}_MNEMONIC`;
+  const seedEnv = `MIDNIGHT_${upper}_SEED`;
+  const mnemonic = process.env[mnemonicEnv]?.trim().replace(/\s+/g, ' ');
+  const seedHex = process.env[seedEnv]?.trim();
+
+  if (mnemonic && seedHex) {
+    throw new Error(`Set only one of ${mnemonicEnv} or ${seedEnv} (both are defined).`);
+  }
   if (mnemonic) return { kind: 'mnemonic', value: mnemonic };
-  throw new Error('No mnemonic');
+  if (seedHex) {
+    if (!/^[0-9a-fA-F]+$/.test(seedHex) || seedHex.length % 2 !== 0) {
+      throw new Error(`${seedEnv} must be a hex string of even length (no 0x prefix).`);
+    }
+    return { kind: 'seed', value: seedHex };
+  }
+  throw new Error(
+    `Either ${mnemonicEnv} or ${seedEnv} is required for network '${net}'.`,
+  );
 }
 
 async function main() {
