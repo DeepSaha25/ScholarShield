@@ -17,9 +17,9 @@ export default function Footer() {
             Privacy-preserving eligibility verification built on the Midnight Network using Zero-Knowledge proofs.
           </p>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-            <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Code size={20} /></a>
-            <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Globe size={20} /></a>
-            <a href="#" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Mail size={20} /></a>
+            <a href="https://github.com/DeepSaha25/ScholarShield" target="_blank" rel="noopener noreferrer" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Code size={20} /></a>
+            <a href="https://scholar-shield-ten.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Globe size={20} /></a>
+            <a href="https://x.com/georgian_deep" target="_blank" rel="noopener noreferrer" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Mail size={20} /></a>
           </div>
         </div>
 
