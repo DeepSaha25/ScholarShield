@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Home, Key, Lock, Info } from 'lucide-react';
+import { Shield, Home, Key, Lock, Info, BarChart3 } from 'lucide-react';
 import WalletBanner from './WalletBanner';
 
 export default function NavBar() {
@@ -9,6 +9,7 @@ export default function NavBar() {
   const navLinks = [
     { name: 'Home', path: '/', icon: <Home size={18} /> },
     { name: 'Verify', path: '/verify', icon: <Key size={18} /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <BarChart3 size={18} /> },
     { name: 'Admin', path: '/admin', icon: <Lock size={18} /> },
     { name: 'About', path: '/about', icon: <Info size={18} /> },
   ];
