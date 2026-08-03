@@ -48,6 +48,34 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {stats.total > 0 && (
+          <div className="card mb-lg" style={{ padding: '2rem' }}>
+            <h2 className="title-md mb-md">Pass/Fail Ratio</h2>
+            <div style={{ width: '100%', height: '40px', display: 'flex', borderRadius: '4px', overflow: 'hidden' }}>
+              <div 
+                style={{ 
+                  width: `${(stats.passed / stats.total) * 100}%`, 
+                  backgroundColor: 'var(--accent-color)',
+                  transition: 'width 0.5s ease' 
+                }} 
+                title={`Passed: ${stats.passed}`}
+              />
+              <div 
+                style={{ 
+                  width: `${(stats.failed / stats.total) * 100}%`, 
+                  backgroundColor: '#ff4444',
+                  transition: 'width 0.5s ease' 
+                }} 
+                title={`Failed: ${stats.failed}`}
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--accent-color)' }}>{Math.round((stats.passed / stats.total) * 100)}% Eligible</span>
+              <span style={{ color: '#ff4444' }}>{Math.round((stats.failed / stats.total) * 100)}% Ineligible</span>
+            </div>
+          </div>
+        )}
+
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 className="title-md">Proof History</h2>
