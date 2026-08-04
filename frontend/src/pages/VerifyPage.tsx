@@ -9,6 +9,7 @@ import { PREPROD_CONTRACT_ADDRESS, MIN_GPA_THRESHOLD, MAX_INCOME_THRESHOLD } fro
 import StatusBadge from '../components/StatusBadge';
 import { explorerTxUrl } from '../constants';
 import { saveProof } from '../lib/proofHistory';
+import { useEligibilityPrecheck } from '../hooks/useEligibilityPrecheck';
 
 type VerifyStatus = 'idle' | 'proving' | 'submitting' | 'eligible' | 'ineligible' | 'error';
 
@@ -26,6 +27,8 @@ export default function VerifyPage() {
   const [status, setStatus] = useState<VerifyStatus>('idle');
   const [txId, setTxId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const precheckResult = useEligibilityPrecheck(gpaRaw, incomeRaw);
 
   const handleVerify = useCallback(async () => {
     if (!session || !isConnected) return;
@@ -194,6 +197,16 @@ export default function VerifyPage() {
               <div className="text-secondary mt-xs" style={{ fontSize: '0.8rem' }}>Enter total income in INR</div>
             </div>
           </div>
+
+          {status === 'idle' && precheckResult !== 'idle' && (
+            <div className="mb-lg" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+              <span className="text-secondary text-sm">Simulation Pre-check:</span>
+              {precheckResult === 'likely_eligible' && <StatusBadge variant="eligible" />}
+              {precheckResult === 'likely_ineligible' && <StatusBadge variant="ineligible" />}
+              {precheckResult === 'invalid_input' && <StatusBadge variant="error" />}
+              <span className="text-secondary" style={{ fontSize: '0.75rem', marginLeft: '0.5rem' }}>(Not a real proof)</span>
+            </div>
+          )}
 
           {status === 'idle' || status === 'error' ? (
             <div style={{ display: 'flex', gap: '1rem' }}>
