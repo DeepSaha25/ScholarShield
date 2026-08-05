@@ -212,4 +212,72 @@ describe(`Scholarship Contract (${network})`, () => {
 
     logger.info(`Rejected high income student as expected.`);
   });
+
+  // ---------------------------------------------------------------------------
+  // Edge-case / boundary-value tests
+  // ---------------------------------------------------------------------------
+
+  it('Passes verification at exact GPA boundary (8.00 = 800n)', async () => {
+    // GPA is exactly the minimum threshold — should still pass
+    logger.info('Testing exact GPA boundary (800n)...');
+
+    await (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
+      compiledContract: CompiledScholarshipContract,
+      contractAddress,
+      privateStateId: PRIVATE_STATE_ID,
+      circuitId: 'verify_eligibility',
+      args: [800n, 180000n],
+    });
+
+    logger.info('Exact GPA boundary passed as expected.');
+  });
+
+  it('Passes verification at exact income boundary (250000n)', async () => {
+    // Income is exactly the maximum threshold — should still pass
+    logger.info('Testing exact income boundary (250000n)...');
+
+    await (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
+      compiledContract: CompiledScholarshipContract,
+      contractAddress,
+      privateStateId: PRIVATE_STATE_ID,
+      circuitId: 'verify_eligibility',
+      args: [900n, 250000n],
+    });
+
+    logger.info('Exact income boundary passed as expected.');
+  });
+
+  it('Fails verification when both GPA and income are out of range', async () => {
+    // GPA too low AND income too high — double failure
+    logger.info('Testing double-failure case (GPA=500, Income=500000)...');
+
+    await expect(
+      (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
+        compiledContract: CompiledScholarshipContract,
+        contractAddress,
+        privateStateId: PRIVATE_STATE_ID,
+        circuitId: 'verify_eligibility',
+        args: [500n, 500000n],
+      })
+    ).rejects.toThrow();
+
+    logger.info('Double-failure case rejected as expected.');
+  });
+
+  it('Fails verification for zero GPA', async () => {
+    // GPA of 0 should always fail (below any reasonable threshold)
+    logger.info('Testing zero GPA (0n)...');
+
+    await expect(
+      (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
+        compiledContract: CompiledScholarshipContract,
+        contractAddress,
+        privateStateId: PRIVATE_STATE_ID,
+        circuitId: 'verify_eligibility',
+        args: [0n, 180000n],
+      })
+    ).rejects.toThrow();
+
+    logger.info('Zero GPA rejected as expected.');
+  });
 });
