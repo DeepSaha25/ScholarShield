@@ -10,6 +10,7 @@ import StatusBadge from '../components/StatusBadge';
 import { explorerTxUrl } from '../constants';
 import { saveProof } from '../lib/proofHistory';
 import { useEligibilityPrecheck } from '../hooks/useEligibilityPrecheck';
+import { ToastContainer, ToastProps } from '../components/ToastNotification';
 
 type VerifyStatus = 'idle' | 'proving' | 'submitting' | 'eligible' | 'ineligible' | 'error';
 
@@ -27,6 +28,15 @@ export default function VerifyPage() {
   const [status, setStatus] = useState<VerifyStatus>('idle');
   const [txId, setTxId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<Omit<ToastProps, 'onClose'>[]>([]);
+
+  const addToast = (type: 'success' | 'error', message: string) => {
+    setToasts(prev => [...prev, { id: crypto.randomUUID(), type, message }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
 
   const precheckResult = useEligibilityPrecheck(gpaRaw, incomeRaw);
 
@@ -83,6 +93,7 @@ export default function VerifyPage() {
         gpaRange: `${Math.floor(gpaValue)}-${Math.ceil(gpaValue)}`,
         incomeRange: `${Math.floor(incomeValue / 50000) * 50}k-${Math.ceil(incomeValue / 50000) * 50}k`,
       });
+      addToast('success', newStatus === 'eligible' ? 'Proof verified! You are eligible.' : 'Proof verified! You are not eligible.');
     } catch (e: any) {
       const msg: string = e?.message ?? String(e);
       if (msg.includes('GPA too low') || msg.includes('Income too high') || msg.toLowerCase().includes('assert')) {
@@ -92,6 +103,7 @@ export default function VerifyPage() {
           gpaRange: `${Math.floor(gpaValue)}-${Math.ceil(gpaValue)}`,
           incomeRange: `${Math.floor(incomeValue / 50000) * 50}k-${Math.ceil(incomeValue / 50000) * 50}k`,
         });
+        addToast('error', 'Circuit constraint failed: Ineligible.');
       } else {
         setStatus('error');
         setErrorMsg(msg);
@@ -100,6 +112,7 @@ export default function VerifyPage() {
           gpaRange: `${Math.floor(gpaValue)}-${Math.ceil(gpaValue)}`,
           incomeRange: `${Math.floor(incomeValue / 50000) * 50}k-${Math.ceil(incomeValue / 50000) * 50}k`,
         });
+        addToast('error', 'An error occurred during verification.');
       }
     }
   }, [session, isConnected, gpaRaw, incomeRaw]);
@@ -285,6 +298,7 @@ export default function VerifyPage() {
           )}
         </div>
       </div>
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 }
