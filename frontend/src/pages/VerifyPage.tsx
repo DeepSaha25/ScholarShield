@@ -6,6 +6,8 @@ import { useWallet } from '../contexts/WalletContext';
 import PrivacyFlowViz from '../components/PrivacyFlowViz';
 import { CheckCircle, XCircle, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
 import { PREPROD_CONTRACT_ADDRESS, MIN_GPA_THRESHOLD, MAX_INCOME_THRESHOLD } from '../config';
+import StatusBadge from '../components/StatusBadge';
+import { explorerTxUrl } from '../constants';
 
 type VerifyStatus = 'idle' | 'proving' | 'submitting' | 'eligible' | 'ineligible' | 'error';
 
@@ -17,7 +19,7 @@ function getCompiledContract() {
 }
 
 export default function VerifyPage() {
-  const { session, isConnected, walletStatus } = useWallet();
+  const { session, isConnected } = useWallet();
   const [gpaRaw, setGpaRaw] = useState('');
   const [incomeRaw, setIncomeRaw] = useState('');
   const [status, setStatus] = useState<VerifyStatus>('idle');
@@ -35,8 +37,8 @@ export default function VerifyPage() {
       setStatus('error');
       return;
     }
-    if (isNaN(incomeValue) || incomeValue < 0) {
-      setErrorMsg('Please enter a valid annual income in INR');
+    if (isNaN(incomeValue) || incomeValue < 0 || incomeValue > 4_294_967_295) {
+      setErrorMsg('Please enter a valid annual income (0 to 4,294,967,295)');
       setStatus('error');
       return;
     }
@@ -104,7 +106,7 @@ export default function VerifyPage() {
     );
   }
 
-  if (PREPROD_CONTRACT_ADDRESS === 'UPDATE_WITH_YOUR_PREPROD_CONTRACT_ADDRESS') {
+  if (PREPROD_CONTRACT_ADDRESS === 'UPDATE_WITH_YOUR_PREPROD_CONTRACT_ADDRESS' || !/^[0-9a-fA-F]{64}$/.test(PREPROD_CONTRACT_ADDRESS)) {
     return (
       <div className="page-container flex-center">
         <div className="card text-center max-w-md mx-auto">
@@ -211,7 +213,7 @@ export default function VerifyPage() {
               <div className="result-desc mb-sm">Your ZK proof was verified on-chain. Your data remained private.</div>
               {txId && (
                 <a 
-                  href={`https://explorer.1am.xyz/tx/${txId}?network=preprod`}
+                  href={explorerTxUrl(txId)}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
@@ -230,7 +232,7 @@ export default function VerifyPage() {
               <div className="result-desc mb-sm">Your credentials do not satisfy the thresholds. Data remained private.</div>
               {txId && (
                 <a 
-                  href={`https://explorer.1am.xyz/tx/${txId}?network=preprod`}
+                  href={explorerTxUrl(txId)}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
