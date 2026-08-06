@@ -11,6 +11,9 @@ constructor(initial_min_gpa: Uint<32>, initial_max_income: Uint<32>) {
 }
 
 // Circuit: verifies eligibility based on private credentials
+// NOTE: Uint<32> caps at 4,294,967,295. GPA is scaled ×100 (0–1000).
+// The upper-bound on gpa (gpa <= 1000) is enforced client-side to
+// avoid wasting gas on obviously invalid inputs.
 export circuit verify_eligibility(gpa: Uint<32>, income: Uint<32>): [] {
     assert(gpa >= min_gpa, "GPA too low");
     assert(income <= max_income, "Income too high");
