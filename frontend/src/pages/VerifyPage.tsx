@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
 import { createUnprovenCallTx, submitTxAsync } from '@midnight-ntwrk/midnight-js-contracts';
 import { Contract } from '../managed/contract/index.js';
@@ -39,9 +39,11 @@ export default function VerifyPage() {
   };
 
   const precheckResult = useEligibilityPrecheck(gpaRaw, incomeRaw);
+  const isProcessing = useRef(false);
 
   const handleVerify = useCallback(async () => {
     if (!session || !isConnected) return;
+    if (isProcessing.current) return;
 
     const gpaValue = parseFloat(gpaRaw);
     const incomeValue = parseInt(incomeRaw, 10);
@@ -60,6 +62,7 @@ export default function VerifyPage() {
     const gpaScaled = BigInt(Math.round(gpaValue * 100));
     const incomeBig = BigInt(incomeValue);
 
+    isProcessing.current = true;
     setStatus('proving');
     setErrorMsg(null);
     setTxId(null);
@@ -114,6 +117,8 @@ export default function VerifyPage() {
         });
         addToast('error', 'An error occurred during verification.');
       }
+    } finally {
+      isProcessing.current = false;
     }
   }, [session, isConnected, gpaRaw, incomeRaw]);
 

@@ -82,6 +82,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       setAddress(sess.unshieldedAddress);
       setIsConnected(true);
       return sess;
+    } catch (e) {
+      console.error('Wallet connection failed:', e);
+      return undefined;
     } finally {
       connectingRef.current = false;
       setIsConnecting(false);
