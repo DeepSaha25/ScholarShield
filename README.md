@@ -2,6 +2,8 @@
 
 **Privacy-Preserving Scholarship Verification on the Midnight Network**
 
+> 🚀 **[August Submission Updates](#august-submission-updates)** — Security audit, new features, edge-case tests, and 12 commits across this sprint.
+
 [![Midnight Network](https://img.shields.io/badge/Network-Midnight-blueviolet?style=for-the-badge)](https://midnight.network)
 [![Language](https://img.shields.io/badge/Language-Compact-orange?style=for-the-badge)](https://midnight.network)
 [![Tested With](https://img.shields.io/badge/Tested%20With-Vitest-yellow?style=for-the-badge)](https://vitest.dev)
@@ -187,3 +189,64 @@ npm install
 npm run dev
 ```
 Navigate to `http://localhost:5173`. You must have the **1AM wallet** browser extension installed and configured to the appropriate network (Local or Preprod) to interact with the application.
+
+---
+
+## August Submission Updates
+
+**Sprint Summary:** 12 commits — 6 bug fixes · 3 new features · 1 test expansion · 1 contract doc update · 1 docs update.
+
+### Bug Fixes
+
+| File | Bug | Fix |
+|------|-----|-----|
+| `frontend/src/index.css` | Invalid CSS property `max-w` instead of `max-width` on `.page-container` | Corrected to `max-width: 1200px` |
+| `frontend/src/contexts/WalletContext.tsx` | Disconnect callback created a polling interval that was never cleaned up on unmount, causing a memory leak | Added a `useRef` to track the interval and clear it on subsequent disconnects |
+| `src/providers.ts` | Private state password was hardcoded as a plain string literal (`'Scholarship-Test-Password'`) | Made configurable via `MIDNIGHT_PRIVATE_STATE_PASSWORD` env variable with a fallback |
+| `scripts/balance.ts` | `resolveSecret()` only handled mnemonic — crashed when a seed hex was configured | Aligned with `deploy.ts` pattern: supports both mnemonic and seed, with proper hex validation |
+| `scripts/address.ts` | Same mnemonic-only bug as `balance.ts` | Same fix — both mnemonic and seed secrets are now accepted |
+| `frontend/src/components/Footer.tsx` | Social media icons linked to `href="#"` (dead navigation) | Replaced with actual project URLs: GitHub repo, Vercel app, and X profile |
+
+### New Features
+
+- **StatusBadge Component** (`frontend/src/components/StatusBadge.tsx`)
+  - Reusable UI component for displaying verification status (eligible, ineligible, pending, error)
+  - Color-coded with appropriate icons from lucide-react
+  - Used on the Verify page for clear visual feedback
+
+- **Constants Module** (`frontend/src/constants.ts`)
+  - Centralized magic strings and numbers: contract name, threshold defaults, GPA scale factor, explorer base URL
+  - Provides `explorerTxUrl()` helper to build transaction explorer links
+  - Replaces inline string interpolation in VerifyPage
+
+- **Input Validation Hardening** (VerifyPage + contract)
+  - Added Uint\<32\> overflow guard on income input (max 4,294,967,295)
+  - Added contract address hex format validation (64-character hex check)
+  - Removed unused `walletStatus` destructure from VerifyPage
+  - Added Uint\<32\> range documentation to the Compact contract source
+
+### Test Additions
+
+| Test | What it covers |
+|------|----------------|
+| `Passes verification at exact GPA boundary (800n)` | Boundary: GPA == min_gpa should pass (≥ check) |
+| `Passes verification at exact income boundary (250000n)` | Boundary: income == max_income should pass (≤ check) |
+| `Fails verification when both GPA and income are out of range` | Double-failure: both inputs violate thresholds simultaneously |
+| `Fails verification for zero GPA` | Edge case: zero-value GPA should always be rejected |
+
+### Commit Timeline
+
+| # | Type | Commit Message |
+|---|------|----------------|
+| 1 | 🐛 Fix | fix(css): correct invalid `max-w` property to `max-width` in page-container |
+| 2 | 🐛 Fix | fix(wallet): prevent disconnect polling interval memory leak |
+| 3 | 🔒 Security | fix(security): make private state password configurable via env variable |
+| 4 | 🐛 Fix | fix(scripts): support both mnemonic and seed secrets in balance script |
+| 5 | 🐛 Fix | fix(scripts): support both mnemonic and seed secrets in address script |
+| 6 | 🐛 Fix | fix(footer): replace dead href="#" links with actual project URLs |
+| 7 | ✨ Feature | feat(ui): add reusable StatusBadge component for verification status |
+| 8 | ✨ Feature | feat(config): add centralized constants module for magic strings |
+| 9 | ✨ Feature | feat(verify): add input overflow guard and contract address validation |
+| 10 | 🧪 Test | test: add boundary-value edge-case tests for verify_eligibility |
+| 11 | 📝 Docs | docs(contract): document Uint32 range constraints and client-side validation |
+| 12 | 📝 Docs | docs(readme): add August Submission Updates section with sprint summary |
