@@ -10,6 +10,7 @@ import StatusBadge from '../components/StatusBadge';
 import { explorerTxUrl } from '../constants';
 import { saveProof } from '../lib/proofHistory';
 import { useEligibilityPrecheck } from '../hooks/useEligibilityPrecheck';
+import { useLiveCriteria } from '../hooks/useLiveCriteria';
 import { ToastContainer, ToastProps } from '../components/ToastNotification';
 
 type VerifyStatus = 'idle' | 'proving' | 'submitting' | 'eligible' | 'ineligible' | 'error';
@@ -40,6 +41,7 @@ export default function VerifyPage() {
 
   const precheckResult = useEligibilityPrecheck(gpaRaw, incomeRaw);
   const isProcessing = useRef(false);
+  const { liveGpa, liveIncome, isLoading: isCriteriaLoading } = useLiveCriteria();
 
   const handleVerify = useCallback(async () => {
     if (!session || !isConnected) return;
@@ -163,6 +165,28 @@ export default function VerifyPage() {
   return (
     <div className="page-container">
       <div className="max-w-3xl mx-auto">
+        <div className="card text-center mb-lg">
+          <Shield size={48} className="mx-auto mb-sm text-accent" />
+          <h2 className="title-lg mb-xs">Verify Eligibility</h2>
+          <p className="text-secondary mb-md">
+            Prove your academic and financial status on-chain without revealing your raw data.
+          </p>
+          
+          <div className="criteria-box" style={{ background: 'var(--bg-main)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <h3 className="text-primary font-bold text-sm uppercase tracking-widest">Active Smart Contract Criteria</h3>
+            {isCriteriaLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', opacity: 0.5 }}>
+                <span className="spinner-small"></span> Loading on-chain rules...
+              </div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+                <div><span className="text-secondary">Min GPA:</span> <strong className="text-accent">{(liveGpa / 100).toFixed(2)}</strong></div>
+                <div><span className="text-secondary">Max Income:</span> <strong className="text-accent">${liveIncome.toLocaleString()}</strong></div>
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="mb-xl">
           <h1 className="title-lg mb-sm">Verify Eligibility</h1>
           <p className="text-secondary">Provide your private credentials below to generate a zero-knowledge proof.</p>
