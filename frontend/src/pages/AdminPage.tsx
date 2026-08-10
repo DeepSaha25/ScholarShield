@@ -20,6 +20,14 @@ export default function AdminPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [deployedAddress, setDeployedAddress] = useState<string | null>(null);
 
+  const isPreprod = session?.config?.networkId === 'Undeployed' 
+    ? false 
+    : session?.config?.networkId !== undefined; 
+  // It's a bit tricky to know exactly what the string is, but we can check if it's connected and warn.
+  // Actually, Midnight's NetworkId is an enum or string. We can just check the indexerUri if we have to.
+  // We'll warn if the user is connected to local instead of preprod by looking at indexer URL, or just a simple boolean.
+  const isLocal = session?.config?.indexerUri?.includes('localhost') || session?.config?.indexerUri?.includes('127.0.0.1');
+
   const handleDeploy = useCallback(async () => {
     if (!session || !isConnected) return;
     setStatus('deploying');
@@ -84,6 +92,17 @@ export default function AdminPage() {
           <p className="text-secondary mb-lg">
             Deploy the scholarship contract to the Preprod network. The contract will be initialized with the criteria defined in the application config.
           </p>
+
+          {isLocal && (
+            <div className="mb-lg p-sm" style={{ background: 'rgba(255, 68, 68, 0.1)', border: '1px solid #ff4444', borderRadius: '8px', color: '#ff4444' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontWeight: 'bold' }}>
+                <AlertCircle size={16} /> Warning: Local Network Detected
+              </div>
+              <div style={{ fontSize: '0.9rem' }}>
+                Your wallet appears to be connected to a local network. Deployments on local nodes will not be accessible to Preprod users.
+              </div>
+            </div>
+          )}
 
           <div className="rules-grid mb-lg">
             <div className="rule-box">
