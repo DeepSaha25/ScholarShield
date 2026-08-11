@@ -250,3 +250,27 @@ Navigate to `http://localhost:5173`. You must have the **1AM wallet** browser ex
 | 10 | 🧪 Test | test: add boundary-value edge-case tests for verify_eligibility |
 | 11 | 📝 Docs | docs(contract): document Uint32 range constraints and client-side validation |
 | 12 | 📝 Docs | docs(readme): add August Submission Updates section with sprint summary |
+
+### New Features (Mid-August Sprint)
+
+- **Analytics Dashboard Page** (`frontend/src/pages/DashboardPage.tsx`)
+  - Real-time statistics summary cards for total proofs, eligible proofs, and ineligible proofs
+  - LocalStorage-based proof history tracking with timestamps and transaction links
+  - SVG bar chart for visualizing pass/fail ratios
+  - Clear history functionality with confirmation guard
+
+- **Client-Side Eligibility Pre-checker** (`frontend/src/hooks/useEligibilityPrecheck.ts`)
+  - Simulates the Zero-Knowledge circuit locally before triggering the wallet extension
+  - Displays instant visual feedback (likely eligible, likely ineligible, invalid input)
+  - Helps users avoid paying transaction fees for obviously invalid credentials
+
+- **Live On-chain Criteria Reader** (`frontend/src/hooks/useLiveCriteria.ts`)
+  - Fetches the active minimum GPA and maximum income directly from the Midnight ledger
+  - Features a robust fallback mechanism to environment variables if the indexer is unavailable
+  - Eliminates reliance on hardcoded criteria on the verification page
+
+- **UI & UX Improvements**
+  - Added a lightweight Toast Notification system (`frontend/src/components/ToastNotification.tsx`) for transaction feedback
+  - Added an admin network guard that visually warns deployers if their wallet is connected to a local node instead of Preprod
+  - Implemented double-submit guards using React `useRef` to prevent concurrent wallet invocations
+  - Added graceful error handling for wallet connection rejections
