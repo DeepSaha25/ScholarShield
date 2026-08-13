@@ -46,9 +46,13 @@ export default function VerifyPage() {
   const handleVerify = useCallback(async () => {
     if (!session || !isConnected) return;
     if (isProcessing.current) return;
+    
+    const trimmedGpa = gpaRaw.trim();
+    const trimmedIncome = incomeRaw.trim();
+    if (!trimmedGpa || !trimmedIncome) return;
 
-    const gpaValue = parseFloat(gpaRaw);
-    const incomeValue = parseInt(incomeRaw, 10);
+    const gpaValue = parseFloat(trimmedGpa);
+    const incomeValue = parseInt(trimmedIncome, 10);
 
     if (isNaN(gpaValue) || gpaValue < 0 || gpaValue > 10) {
       setErrorMsg('Please enter a valid GPA between 0.0 and 10.0');
@@ -132,7 +136,13 @@ export default function VerifyPage() {
     setIncomeRaw('');
   };
 
-  const isProcessing = status === 'proving' || status === 'submitting';
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && gpaRaw.trim() && incomeRaw.trim() && isConnected && status !== 'proving' && status !== 'submitting') {
+      handleVerify();
+    }
+  };
+
+  const isProcessingStatus = status === 'proving' || status === 'submitting';
 
   if (!isConnected) {
     return (
@@ -219,7 +229,8 @@ export default function VerifyPage() {
                 step="0.01"
                 value={gpaRaw}
                 onChange={(e) => setGpaRaw(e.target.value)}
-                disabled={isProcessing || status === 'eligible' || status === 'ineligible'}
+                onKeyDown={handleKeyDown}
+                disabled={isProcessingStatus || status === 'eligible' || status === 'ineligible'}
               />
               <div className="text-secondary mt-xs" style={{ fontSize: '0.8rem' }}>Enter a value between 0.0 and 10.0</div>
             </div>
@@ -234,7 +245,8 @@ export default function VerifyPage() {
                 step="1000"
                 value={incomeRaw}
                 onChange={(e) => setIncomeRaw(e.target.value)}
-                disabled={isProcessing || status === 'eligible' || status === 'ineligible'}
+                onKeyDown={handleKeyDown}
+                disabled={isProcessingStatus || status === 'eligible' || status === 'ineligible'}
               />
               <div className="text-secondary mt-xs" style={{ fontSize: '0.8rem' }}>Enter total income in INR</div>
             </div>
@@ -256,7 +268,7 @@ export default function VerifyPage() {
                 className="btn btn-primary"
                 style={{ flex: 2 }}
                 onClick={handleVerify}
-                disabled={!gpaRaw || !incomeRaw || !isConnected}
+                disabled={!gpaRaw.trim() || !incomeRaw.trim() || !isConnected}
               >
                 Verify Eligibility
               </button>
@@ -264,12 +276,12 @@ export default function VerifyPage() {
                 className="btn btn-secondary"
                 style={{ flex: 1 }}
                 onClick={reset}
-                disabled={!gpaRaw && !incomeRaw && !errorMsg}
+                disabled={!gpaRaw.trim() && !incomeRaw.trim() && !errorMsg}
               >
                 Clear
               </button>
             </div>
-          ) : isProcessing ? (
+          ) : isProcessingStatus ? (
             <button className="btn btn-primary btn-block" disabled>
               <Loader2 className="spinner-icon mr-sm" size={18} />
               {status === 'proving' ? 'Generating ZK Proof Locally…' : 'Submitting Proof to Preprod…'}
@@ -280,51 +292,53 @@ export default function VerifyPage() {
             </button>
           )}
 
-          {status === 'eligible' && (
-            <div className="result-box success mt-lg">
-              <CheckCircle size={32} className="mb-sm" />
-              <div className="result-title">Eligible for Scholarship!</div>
-              <div className="result-desc mb-sm">Your ZK proof was verified on-chain. Your data remained private.</div>
-              {txId && (
-                <a 
-                  href={explorerTxUrl(txId)}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem', padding: '0.5rem 1rem' }}
-                >
-                  View on Explorer <ExternalLink size={16} />
-                </a>
-              )}
-            </div>
-          )}
+          <div aria-live="polite" aria-atomic="true">
+            {status === 'eligible' && (
+              <div className="result-box success mt-lg">
+                <CheckCircle size={32} className="mb-sm" />
+                <div className="result-title">Eligible for Scholarship!</div>
+                <div className="result-desc mb-sm">Your ZK proof was verified on-chain. Your data remained private.</div>
+                {txId && (
+                  <a 
+                    href={explorerTxUrl(txId)}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                  >
+                    View on Explorer <ExternalLink size={16} />
+                  </a>
+                )}
+              </div>
+            )}
 
-          {status === 'ineligible' && (
-            <div className="result-box error mt-lg">
-              <XCircle size={32} className="mb-sm" />
-              <div className="result-title">Not Eligible</div>
-              <div className="result-desc mb-sm">Your credentials do not satisfy the thresholds. Data remained private.</div>
-              {txId && (
-                <a 
-                  href={explorerTxUrl(txId)}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem', padding: '0.5rem 1rem' }}
-                >
-                  View on Explorer <ExternalLink size={16} />
-                </a>
-              )}
-            </div>
-          )}
+            {status === 'ineligible' && (
+              <div className="result-box error mt-lg">
+                <XCircle size={32} className="mb-sm" />
+                <div className="result-title">Not Eligible</div>
+                <div className="result-desc mb-sm">Your credentials do not satisfy the thresholds. Data remained private.</div>
+                {txId && (
+                  <a 
+                    href={explorerTxUrl(txId)}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary inline-flex items-center gap-xs mt-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                  >
+                    View on Explorer <ExternalLink size={16} />
+                  </a>
+                )}
+              </div>
+            )}
 
-          {status === 'error' && errorMsg && (
-            <div className="result-box warning mt-lg">
-              <AlertCircle size={24} className="mb-sm" />
-              <div className="result-title">Verification Error</div>
-              <div className="result-desc">{errorMsg}</div>
-            </div>
-          )}
+            {status === 'error' && errorMsg && (
+              <div className="result-box warning mt-lg">
+                <AlertCircle size={24} className="mb-sm" />
+                <div className="result-title">Verification Error</div>
+                <div className="result-desc">{errorMsg}</div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <ToastContainer toasts={toasts} onClose={removeToast} />
