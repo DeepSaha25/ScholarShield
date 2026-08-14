@@ -689,3 +689,16 @@ a {
     opacity: 1;
   }
 }
+
+/* Mobile Navbar */
+@media (max-width: 768px) {
+  .nav-item-text {
+    display: none;
+  }
+  .navbar-links {
+    gap: 1rem;
+  }
+  .navbar-logo span {
+    display: none;
+  }
+}

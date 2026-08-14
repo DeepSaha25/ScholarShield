@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Code, Globe, Mail } from 'lucide-react';
+import { PREPROD_CONTRACT_ADDRESS } from '../config';
 
 export default function Footer() {
   return (
@@ -51,6 +52,28 @@ export default function Footer() {
             <span style={{ padding: '0.25rem 0.5rem', backgroundColor: 'rgba(0,255,102,0.1)', color: 'var(--accent-color)', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid rgba(0,255,102,0.2)' }}>
               v1.0.0
             </span>
+          </div>
+          <div style={{ marginTop: '0.5rem' }}>
+            <span style={{ color: '#666', fontSize: '0.8rem', display: 'block', marginBottom: '0.25rem' }}>Contract Address</span>
+            <div 
+              style={{ 
+                color: '#888', 
+                fontSize: '0.75rem',
+                fontFamily: 'monospace',
+                backgroundColor: '#111',
+                padding: '0.5rem',
+                borderRadius: '4px',
+                border: '1px solid #333',
+                wordBreak: 'break-all',
+                maxWidth: '200px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+              title={PREPROD_CONTRACT_ADDRESS}
+            >
+              {PREPROD_CONTRACT_ADDRESS}
+            </div>
           </div>
         </div>
 
