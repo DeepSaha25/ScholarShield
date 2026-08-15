@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState } from 'react';
 import { PREPROD_CONTRACT_ADDRESS } from '../config';
 import StatusBadge from '../components/StatusBadge';
 import { explorerTxUrl } from '../constants';
