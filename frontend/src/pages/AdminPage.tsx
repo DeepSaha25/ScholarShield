@@ -115,31 +115,33 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {status === 'idle' || status === 'error' ? (
-            <button className="btn btn-primary btn-block" onClick={handleDeploy}>
-              Deploy Contract to Preprod
-            </button>
-          ) : status === 'deploying' ? (
-            <button className="btn btn-primary btn-block" disabled>
-              <Loader2 className="spinner-icon mr-sm" size={18} />
-              Deploying... Please check your wallet extension
-            </button>
-          ) : (
-            <div className="result-box success mt-md">
-              <CheckCircle size={32} className="mb-sm" />
-              <div className="result-title">Successfully Deployed!</div>
-              <div className="result-tx font-mono">{deployedAddress}</div>
-              <div className="mt-sm text-sm opacity-80">Reloading application...</div>
-            </div>
-          )}
+          <div aria-live="polite" aria-atomic="true">
+            {status === 'idle' || status === 'error' ? (
+              <button className="btn btn-primary btn-block" onClick={handleDeploy}>
+                Deploy Contract to Preprod
+              </button>
+            ) : status === 'deploying' ? (
+              <button className="btn btn-primary btn-block" disabled>
+                <Loader2 className="spinner-icon mr-sm" size={18} />
+                Deploying... Please check your wallet extension
+              </button>
+            ) : (
+              <div className="result-box success mt-md">
+                <CheckCircle size={32} className="mb-sm" />
+                <div className="result-title">Successfully Deployed!</div>
+                <div className="result-tx font-mono">{deployedAddress}</div>
+                <div className="mt-sm text-sm opacity-80">Reloading application...</div>
+              </div>
+            )}
 
-          {status === 'error' && errorMsg && (
-            <div className="result-box error mt-md">
-              <AlertCircle size={24} className="mb-sm" />
-              <div className="result-title">Deployment Failed</div>
-              <div className="result-desc break-words">{errorMsg}</div>
-            </div>
-          )}
+            {status === 'error' && errorMsg && (
+              <div className="result-box error mt-md">
+                <AlertCircle size={24} className="mb-sm" />
+                <div className="result-title">Deployment Failed</div>
+                <div className="result-desc break-words">{errorMsg}</div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
