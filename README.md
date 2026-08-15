@@ -71,6 +71,55 @@ ScholarShield eliminates the need for data transmission. Verification is entirel
 - **Hidden permanently:** The student's actual GPA, their family's actual income, and the margin by which they exceeded or missed the threshold.
 
 ---
+## August Submission Updates
+
+### Bug Fixes & Refactors
+
+- **Wallet Connection Leaks**: Cleans up polling intervals on disconnect.
+- **Footer Address Truncation**: Ensures contract addresses don't overflow on mobile.
+- **Mobile Navbar**: Hide text on small screens, use flex gap.
+- **Double-submit bugs**: Disabled verify button when processing.
+- **Private State Password**: Securely loaded from environment variables.
+- **Input Edge Cases**: Empty strings, negative values, overflow amounts now guarded.
+- **Custom Hooks**: Extracted logic into `useVerifySubmit`.
+- **Accessibility**: Added ARIA live regions and keyboard handlers.
+
+### Test Additions
+
+| Test | What it covers |
+|------|----------------|
+| `Passes verification at exact GPA boundary (800n)` | Boundary: GPA == min_gpa should pass (≥ check) |
+| `Passes verification at exact income boundary (250000n)` | Boundary: income == max_income should pass (≤ check) |
+| `Fails verification when both GPA and income are out of range` | Double-failure: both inputs violate thresholds simultaneously |
+| `Fails verification for zero GPA` | Edge case: zero-value GPA should always be rejected |
+| `Eligibility Pre-checker Tests` | Validates that client-side logic perfectly matches circuit thresholds |
+| `Proof History Utility Tests` | Ensures proofs are properly serialized, saved, and loaded from localStorage |
+
+### New Features (Mid-August Sprint)
+
+- **Analytics Dashboard Page** (`frontend/src/pages/DashboardPage.tsx`)
+  - Real-time statistics summary cards for total proofs, eligible proofs, and ineligible proofs
+  - LocalStorage-based proof history tracking with timestamps and transaction links
+  - SVG bar chart for visualizing pass/fail ratios
+  - Clear history functionality with confirmation guard
+
+- **Client-Side Eligibility Pre-checker** (`frontend/src/hooks/useEligibilityPrecheck.ts`)
+  - Simulates the Zero-Knowledge circuit locally before triggering the wallet extension
+  - Displays instant visual feedback (likely eligible, likely ineligible, invalid input)
+  - Helps users avoid paying transaction fees for obviously invalid credentials
+
+- **Live On-chain Criteria Reader** (`frontend/src/hooks/useLiveCriteria.ts`)
+  - Fetches the active minimum GPA and maximum income directly from the Midnight ledger
+  - Features a robust fallback mechanism to environment variables if the indexer is unavailable
+  - Eliminates reliance on hardcoded criteria on the verification page
+
+- **UI & UX Improvements**
+  - Added a lightweight Toast Notification system (`frontend/src/components/ToastNotification.tsx`) for transaction feedback
+  - Added an admin network guard that visually warns deployers if their wallet is connected to a local node instead of Preprod
+  - Implemented double-submit guards using React `useRef` to prevent concurrent wallet invocations
+  - Added graceful error handling for wallet connection rejections
+
+---
 
 ## Smart Contract Implementation
 
@@ -191,54 +240,11 @@ Navigate to `http://localhost:5173`. You must have the **1AM wallet** browser ex
 
 ---
 
-## August Submission Updates
+## Author & Acknowledgements
 
-**Sprint Summary:** 33 commits spread evenly across August 1 to August 15. The sprint included extensive bug fixes, new features, test expansion, and architectural refactoring.
+**ScholarShield** was developed by **Deep Saha** as part of the Midnight Network hackathon.
 
-For a full timeline of all 33 commits, please refer to the Git commit history and the `CHANGELOG.md` file.
+- **GitHub:** [@DeepSaha25](https://github.com/DeepSaha25)
+- **X (Twitter):** [@georgian_deep](https://x.com/georgian_deep)
 
-### Bug Fixes & Refactors
-
-- **Wallet Connection Leaks**: Cleans up polling intervals on disconnect.
-- **Footer Address Truncation**: Ensures contract addresses don't overflow on mobile.
-- **Mobile Navbar**: Hide text on small screens, use flex gap.
-- **Double-submit bugs**: Disabled verify button when processing.
-- **Private State Password**: Securely loaded from environment variables.
-- **Input Edge Cases**: Empty strings, negative values, overflow amounts now guarded.
-- **Custom Hooks**: Extracted logic into `useVerifySubmit`.
-- **Accessibility**: Added ARIA live regions and keyboard handlers.
-
-### Test Additions
-
-| Test | What it covers |
-|------|----------------|
-| `Passes verification at exact GPA boundary (800n)` | Boundary: GPA == min_gpa should pass (≥ check) |
-| `Passes verification at exact income boundary (250000n)` | Boundary: income == max_income should pass (≤ check) |
-| `Fails verification when both GPA and income are out of range` | Double-failure: both inputs violate thresholds simultaneously |
-| `Fails verification for zero GPA` | Edge case: zero-value GPA should always be rejected |
-| `Eligibility Pre-checker Tests` | Validates that client-side logic perfectly matches circuit thresholds |
-| `Proof History Utility Tests` | Ensures proofs are properly serialized, saved, and loaded from localStorage |
-
-### New Features (Mid-August Sprint)
-
-- **Analytics Dashboard Page** (`frontend/src/pages/DashboardPage.tsx`)
-  - Real-time statistics summary cards for total proofs, eligible proofs, and ineligible proofs
-  - LocalStorage-based proof history tracking with timestamps and transaction links
-  - SVG bar chart for visualizing pass/fail ratios
-  - Clear history functionality with confirmation guard
-
-- **Client-Side Eligibility Pre-checker** (`frontend/src/hooks/useEligibilityPrecheck.ts`)
-  - Simulates the Zero-Knowledge circuit locally before triggering the wallet extension
-  - Displays instant visual feedback (likely eligible, likely ineligible, invalid input)
-  - Helps users avoid paying transaction fees for obviously invalid credentials
-
-- **Live On-chain Criteria Reader** (`frontend/src/hooks/useLiveCriteria.ts`)
-  - Fetches the active minimum GPA and maximum income directly from the Midnight ledger
-  - Features a robust fallback mechanism to environment variables if the indexer is unavailable
-  - Eliminates reliance on hardcoded criteria on the verification page
-
-- **UI & UX Improvements**
-  - Added a lightweight Toast Notification system (`frontend/src/components/ToastNotification.tsx`) for transaction feedback
-  - Added an admin network guard that visually warns deployers if their wallet is connected to a local node instead of Preprod
-  - Implemented double-submit guards using React `useRef` to prevent concurrent wallet invocations
-  - Added graceful error handling for wallet connection rejections
+*Built with privacy and security in mind on the Midnight Network.*
