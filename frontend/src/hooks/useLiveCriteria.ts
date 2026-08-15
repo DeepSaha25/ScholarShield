@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useMidnightSession } from '../contexts/MidnightSessionContext';
+import { useWallet } from '../contexts/WalletContext';
 import { PREPROD_CONTRACT_ADDRESS, MIN_GPA_THRESHOLD, MAX_INCOME_THRESHOLD } from '../config';
 import { Contract } from '../managed/contract/index.js';
 
 export function useLiveCriteria() {
-  const { session } = useMidnightSession();
+  const { session } = useWallet();
   const [liveGpa, setLiveGpa] = useState<number>(MIN_GPA_THRESHOLD);
   const [liveIncome, setLiveIncome] = useState<number>(MAX_INCOME_THRESHOLD);
   const [isLoading, setIsLoading] = useState<boolean>(true);
