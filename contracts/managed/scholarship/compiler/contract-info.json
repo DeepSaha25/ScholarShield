@@ -1,5 +1,5 @@
 {
-  "compiler-version": "0.31.1",
+  "compiler-version": "0.31.0",
   "language-version": "0.23.0",
   "runtime-version": "0.16.0",
   "circuits": [
@@ -8,15 +8,27 @@
       "pure": false,
       "proof": true,
       "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "update_criteria",
+      "pure": false,
+      "proof": true,
+      "arguments": [
         {
-          "name": "gpa",
+          "name": "new_min_gpa",
           "type": {
             "type-name": "Uint",
             "maxval": 4294967295
           }
         },
         {
-          "name": "income",
+          "name": "new_max_income",
           "type": {
             "type-name": "Uint",
             "maxval": 4294967295
@@ -31,6 +43,47 @@
     }
   ],
   "witnesses": [
+    {
+      "name": "student_credentials",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Struct",
+        "name": "StudentCredentials",
+        "elements": [
+          {
+            "name": "gpa",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 4294967295
+            }
+          },
+          {
+            "name": "income",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 4294967295
+            }
+          },
+          {
+            "name": "student_id",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "admin_secret_key",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    }
   ],
   "contracts": [
   ],
@@ -53,6 +106,26 @@
       "type": {
         "type-name": "Uint",
         "maxval": 4294967295
+      }
+    },
+    {
+      "name": "admin",
+      "index": 2,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "nullifiers",
+      "index": 3,
+      "exported": true,
+      "storage": "Set",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
       }
     }
   ]
