@@ -37,15 +37,23 @@ export default function AdminPage() {
       const compiledContract = getCompiledContract();
       const initialPrivateState = {};
 
+      // Generate a new admin secret key and compute the public hash
+      const adminSk = crypto.getRandomValues(new Uint8Array(32));
+      
+      // Import pureCircuits dynamically to avoid top-level issues
+      const { pureCircuits } = await import('../managed/contract/index.js');
+      const adminHash = pureCircuits.publicKey(adminSk);
+
       const deployTxData = await createUnprovenDeployTx(session.providers as any, {
         compiledContract,
-        args: [BigInt(MIN_GPA_THRESHOLD), BigInt(MAX_INCOME_THRESHOLD)],
+        args: [BigInt(MIN_GPA_THRESHOLD), BigInt(MAX_INCOME_THRESHOLD), adminHash],
         privateStateId: 'DeployerState',
         initialPrivateState,
         signingKey: sampleSigningKey(),
       });
 
       const contractAddress = deployTxData.public.contractAddress;
+      localStorage.setItem('admin_secret_key', Array.from(adminSk).map(b => b.toString(16).padStart(2, '0')).join(''));
       
       await submitTxAsync(session.providers as any, {
         unprovenTx: deployTxData.private.unprovenTx,

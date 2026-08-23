@@ -73,12 +73,18 @@ async function main() {
     const minGpa = 800n;
     const maxIncome = 250000n;
     
+    // Generate an admin key for this deployment
+    const crypto = await import('crypto');
+    const { pureCircuits } = await import('../contracts/index.js');
+    const adminSk = crypto.randomBytes(32);
+    const adminHash = pureCircuits.publicKey(adminSk);
+    
     logger.info(`Deploying Scholarship Smart Contract to ${network}...`);
     const deployed = await deployContract<Contract>(providers, {
       compiledContract: CompiledScholarshipContract,
       privateStateId: PRIVATE_STATE_ID,
       initialPrivateState: {},
-      args: [minGpa, maxIncome],
+      args: [minGpa, maxIncome, adminHash],
     });
 
     const address = deployed.deployTxData.public.contractAddress;
