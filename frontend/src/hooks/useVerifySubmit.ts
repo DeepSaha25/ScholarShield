@@ -70,7 +70,14 @@ export function useVerifySubmit(
         compiledContract,
         contractAddress: PREPROD_CONTRACT_ADDRESS,
         circuitId: 'verify_eligibility',
-        args: [gpaScaled, incomeBig],
+        args: [],
+        witnesses: {
+          student_credentials: () => ({
+            gpa: gpaScaled,
+            income: incomeBig,
+            student_id: (session.providers as any).walletProvider.getCoinPublicKey()
+          })
+        }
       });
 
       setStatus('submitting');
