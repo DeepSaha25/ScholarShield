@@ -4,7 +4,8 @@ import StatusBadge from '../components/StatusBadge';
 import { explorerTxUrl } from '../constants';
 import { useEligibilityPrecheck } from '../hooks/useEligibilityPrecheck';
 import { useLiveCriteria } from '../hooks/useLiveCriteria';
-import { ToastContainer, ToastProps } from '../components/ToastNotification';
+import { ToastContainer } from '../components/ToastNotification';
+import type { ToastProps } from '../components/ToastNotification';
 import { useVerifySubmit } from '../hooks/useVerifySubmit';
 
 export default function VerifyPage() {

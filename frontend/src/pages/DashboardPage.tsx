@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart3, CheckCircle, XCircle, FileText, ExternalLink, Trash2 } from 'lucide-react';
-import { getStats, getProofHistory, clearProofHistory, ProofRecord } from '../lib/proofHistory';
+import { getStats, getProofHistory, clearProofHistory } from '../lib/proofHistory';
+import type { ProofRecord } from '../lib/proofHistory';
 import { explorerTxUrl } from '../constants';
 
 export default function DashboardPage() {

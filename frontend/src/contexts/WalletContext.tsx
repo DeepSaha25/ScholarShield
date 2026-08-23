@@ -11,7 +11,7 @@ import { createConnectedSession, type ConnectedSession } from '../lib/midnight';
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-type WalletType = '1am' | 'lace' | null;
+type WalletType = '1am' | 'lace' | 'nightly' | null;
 type WalletStatus = 'checking' | 'detected' | 'not-found';
 
 type WalletContextType = {
@@ -48,6 +48,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const id = setInterval(() => {
       const w1am = (window as any).midnight?.['1am'];
       const wLace = (window as any).midnight?.mnLace;
+      const wNightly = (window as any).midnight?.nightly;
       if (w1am) {
         setWalletType('1am');
         setWalletStatus('detected');
@@ -60,6 +61,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         clearInterval(id);
         return;
       }
+      if (wNightly) {
+        setWalletType('nightly');
+        setWalletStatus('detected');
+        clearInterval(id);
+        return;
+      }
       if (Date.now() - startedAt >= 6000) {
         setWalletStatus('not-found');
         clearInterval(id);
@@ -68,14 +75,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(id);
   }, []);
 
-  const connect = useCallback(async (network = 'preprod') => {
+  const connect = useCallback(async (network = 'undeployed') => {
     if (connectingRef.current) return;
     connectingRef.current = true;
     setIsConnecting(true);
     try {
       const wallet =
-        (window as any).midnight?.['1am'] ?? (window as any).midnight?.mnLace;
-      if (!wallet) throw new Error('No wallet found. Please install 1AM or Lace wallet.');
+        (window as any).midnight?.['1am'] ?? (window as any).midnight?.mnLace ?? (window as any).midnight?.nightly;
+      if (!wallet) throw new Error('No wallet found. Please install 1AM, Lace, or Nightly wallet.');
       const api = await wallet.connect(network);
       const sess = await createConnectedSession(api);
       setSession(sess);
@@ -108,8 +115,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const id = setInterval(() => {
       const w1am = (window as any).midnight?.['1am'];
       const wLace = (window as any).midnight?.mnLace;
+      const wNightly = (window as any).midnight?.nightly;
       if (w1am) { setWalletType('1am'); setWalletStatus('detected'); clearInterval(id); disconnectPollRef.current = null; return; }
       if (wLace) { setWalletType('lace'); setWalletStatus('detected'); clearInterval(id); disconnectPollRef.current = null; return; }
+      if (wNightly) { setWalletType('nightly'); setWalletStatus('detected'); clearInterval(id); disconnectPollRef.current = null; return; }
       if (Date.now() - startedAt >= 3000) { setWalletStatus('not-found'); clearInterval(id); disconnectPollRef.current = null; }
     }, 200);
     disconnectPollRef.current = id;
