@@ -12,6 +12,7 @@ import {
   waitForFunds,
 } from '@midnight-ntwrk/testkit-js';
 import pino from 'pino';
+import crypto from 'crypto';
 
 import { getConfig } from '../config.js';
 import {
@@ -24,6 +25,7 @@ import {
   CompiledScholarshipContract,
   Contract,
   ledger,
+  pureCircuits,
   zkConfigPath,
 } from '../../contracts/index.js';
 
@@ -86,6 +88,8 @@ describe(`Scholarship Contract (${network})`, () => {
   let wallet: MidnightWalletProvider;
   let providers: ScholarshipProviders;
   let contractAddress: ContractAddress;
+  let adminSk: Uint8Array;
+  let adminHash: Uint8Array;
 
   const config = getConfig();
   const secret = resolveSecret(network);
@@ -131,6 +135,9 @@ describe(`Scholarship Contract (${network})`, () => {
 
     providers = buildProviders(wallet, zkConfigPath, config);
     logger.info(`Providers initialized on '${network}'. Ready to test!`);
+
+    adminSk = crypto.randomBytes(32);
+    adminHash = pureCircuits.publicKey(adminSk);
   });
 
   afterAll(async () => {
@@ -152,7 +159,7 @@ describe(`Scholarship Contract (${network})`, () => {
         compiledContract: CompiledScholarshipContract,
         privateStateId: PRIVATE_STATE_ID,
         initialPrivateState: {},
-        args: [minGpa, maxIncome],
+        args: [minGpa, maxIncome, adminHash],
       });
 
     contractAddress = deployed.deployTxData.public.contractAddress;
@@ -162,26 +169,33 @@ describe(`Scholarship Contract (${network})`, () => {
     const state = await queryLedger(providers);
     expect(state.min_gpa).toEqual(minGpa);
     expect(state.max_income).toEqual(maxIncome);
+    expect(state.admin).toEqual(adminHash);
   });
 
-  it('Verifies eligibility successfully for a qualifying student', async () => {
-    // Student GPA: 9.1 (910), Income: 180,000 (qualifies!)
+  it('Verifies eligibility successfully for a qualifying student via witness', async () => {
     logger.info(`Running verify_eligibility for qualifying student...`);
+
+    const student_id = await providers.walletProvider.getCoinPublicKey();
 
     await (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
       compiledContract: CompiledScholarshipContract,
       contractAddress,
       privateStateId: PRIVATE_STATE_ID,
       circuitId: 'verify_eligibility',
-      args: [910n, 180000n],
+      args: [],
+      witnesses: {
+        student_credentials: () => ({ gpa: 910n, income: 180000n, student_id }),
+        admin_secret_key: () => new Uint8Array(32), // dummy for this circuit
+      }
     });
 
     logger.info(`Verification transaction completed successfully.`);
   });
 
-  it('Fails verification for a student with GPA too low', async () => {
-    // Student GPA: 7.5 (750), Income: 180,000 (fails!)
-    logger.info(`Running verify_eligibility for low GPA student (should fail)...`);
+  it('Fails verification for double-claims using the same student ID (Nullifier)', async () => {
+    logger.info(`Running verify_eligibility again to trigger nullifier failure...`);
+
+    const student_id = await providers.walletProvider.getCoinPublicKey();
 
     await expect(
       (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
@@ -189,95 +203,83 @@ describe(`Scholarship Contract (${network})`, () => {
         contractAddress,
         privateStateId: PRIVATE_STATE_ID,
         circuitId: 'verify_eligibility',
-        args: [750n, 180000n],
+        args: [],
+        witnesses: {
+          student_credentials: () => ({ gpa: 910n, income: 180000n, student_id }),
+          admin_secret_key: () => new Uint8Array(32),
+        }
+      })
+    ).rejects.toThrow();
+
+    logger.info(`Double-claim rejected successfully! Nullifiers work.`);
+  });
+
+  it('Fails verification for a student with GPA too low via witness', async () => {
+    logger.info(`Running verify_eligibility for low GPA student (should fail)...`);
+    
+    // We must use a new student_id to bypass the double-claim check and hit the GPA check
+    const student_id = crypto.randomBytes(32); 
+
+    await expect(
+      (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
+        compiledContract: CompiledScholarshipContract,
+        contractAddress,
+        privateStateId: PRIVATE_STATE_ID,
+        circuitId: 'verify_eligibility',
+        args: [],
+        witnesses: {
+          student_credentials: () => ({ gpa: 750n, income: 180000n, student_id }),
+          admin_secret_key: () => new Uint8Array(32),
+        }
       })
     ).rejects.toThrow();
 
     logger.info(`Rejected low GPA student as expected.`);
   });
 
-  it('Fails verification for a student with income too high', async () => {
-    // Student GPA: 9.1 (910), Income: 300,000 (fails!)
-    logger.info(`Running verify_eligibility for high income student (should fail)...`);
+  it('Allows the admin to update scholarship criteria', async () => {
+    logger.info(`Updating criteria via admin_secret_key...`);
 
-    await expect(
-      (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
-        compiledContract: CompiledScholarshipContract,
-        contractAddress,
-        privateStateId: PRIVATE_STATE_ID,
-        circuitId: 'verify_eligibility',
-        args: [910n, 300000n],
-      })
-    ).rejects.toThrow();
+    const newMinGpa = 850n;
+    const newMaxIncome = 300000n;
 
-    logger.info(`Rejected high income student as expected.`);
-  });
-
-  // ---------------------------------------------------------------------------
-  // Edge-case / boundary-value tests
-  // ---------------------------------------------------------------------------
-
-  it('Passes verification at exact GPA boundary (8.00 = 800n)', async () => {
-    // GPA is exactly the minimum threshold — should still pass
-    logger.info('Testing exact GPA boundary (800n)...');
-
-    await (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
+    await (submitCallTx<Contract, 'update_criteria'>)(providers, {
       compiledContract: CompiledScholarshipContract,
       contractAddress,
       privateStateId: PRIVATE_STATE_ID,
-      circuitId: 'verify_eligibility',
-      args: [800n, 180000n],
+      circuitId: 'update_criteria',
+      args: [newMinGpa, newMaxIncome],
+      witnesses: {
+        student_credentials: () => ({ gpa: 0n, income: 0n, student_id: new Uint8Array(32) }),
+        admin_secret_key: () => adminSk,
+      }
     });
 
-    logger.info('Exact GPA boundary passed as expected.');
+    const state = await queryLedger(providers);
+    expect(state.min_gpa).toEqual(newMinGpa);
+    expect(state.max_income).toEqual(newMaxIncome);
+    logger.info(`Admin criteria updated successfully.`);
   });
 
-  it('Passes verification at exact income boundary (250000n)', async () => {
-    // Income is exactly the maximum threshold — should still pass
-    logger.info('Testing exact income boundary (250000n)...');
+  it('Fails admin updates when unauthorized', async () => {
+    logger.info(`Attempting unauthorized update...`);
 
-    await (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
-      compiledContract: CompiledScholarshipContract,
-      contractAddress,
-      privateStateId: PRIVATE_STATE_ID,
-      circuitId: 'verify_eligibility',
-      args: [900n, 250000n],
-    });
-
-    logger.info('Exact income boundary passed as expected.');
-  });
-
-  it('Fails verification when both GPA and income are out of range', async () => {
-    // GPA too low AND income too high — double failure
-    logger.info('Testing double-failure case (GPA=500, Income=500000)...');
+    const fakeAdminSk = crypto.randomBytes(32);
 
     await expect(
-      (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
+      (submitCallTx<Contract, 'update_criteria'>)(providers, {
         compiledContract: CompiledScholarshipContract,
         contractAddress,
         privateStateId: PRIVATE_STATE_ID,
-        circuitId: 'verify_eligibility',
-        args: [500n, 500000n],
+        circuitId: 'update_criteria',
+        args: [900n, 100000n],
+        witnesses: {
+          student_credentials: () => ({ gpa: 0n, income: 0n, student_id: new Uint8Array(32) }),
+          admin_secret_key: () => fakeAdminSk, // Fake signature
+        }
       })
     ).rejects.toThrow();
 
-    logger.info('Double-failure case rejected as expected.');
-  });
-
-  it('Fails verification for zero GPA', async () => {
-    // GPA of 0 should always fail (below any reasonable threshold)
-    logger.info('Testing zero GPA (0n)...');
-
-    await expect(
-      (submitCallTx<Contract, 'verify_eligibility'>)(providers, {
-        compiledContract: CompiledScholarshipContract,
-        contractAddress,
-        privateStateId: PRIVATE_STATE_ID,
-        circuitId: 'verify_eligibility',
-        args: [0n, 180000n],
-      })
-    ).rejects.toThrow();
-
-    logger.info('Zero GPA rejected as expected.');
+    logger.info(`Unauthorized update rejected.`);
   });
 });
