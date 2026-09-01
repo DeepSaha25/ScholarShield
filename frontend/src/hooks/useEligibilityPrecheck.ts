@@ -10,8 +10,8 @@ export function checkEligibility(gpaRaw: string, incomeRaw: string): PrecheckRes
   const incomeValue = parseInt(incomeRaw, 10);
 
   if (
-    isNaN(gpaValue) || gpaValue < 0 || gpaValue > 10 ||
-    isNaN(incomeValue) || incomeValue < 0 || incomeValue > 4_294_967_295
+    isNaN(gpaValue) || gpaValue <= 0 || gpaValue > 10 ||
+    isNaN(incomeValue) || incomeValue <= 0 || incomeValue > 4_294_967_295
   ) {
     return 'invalid_input';
   }
