@@ -30,10 +30,11 @@ const BADGE_CONFIG: Record<BadgeVariant, { icon: React.ReactNode; label: string;
   },
 };
 
-export default function StatusBadge({ variant }: { variant: BadgeVariant }) {
+export default function StatusBadge({ variant, txHash, timestamp }: { variant: BadgeVariant, txHash?: string, timestamp?: number }) {
   const cfg = BADGE_CONFIG[variant];
   return (
     <span
+      className="badge-wrapper"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -50,6 +51,14 @@ export default function StatusBadge({ variant }: { variant: BadgeVariant }) {
     >
       {cfg.icon}
       {cfg.label}
+      {txHash && (
+        <>
+          <div style={{ width: '1px', height: '12px', backgroundColor: cfg.color, margin: '0 4px', opacity: 0.3 }} />
+          <span style={{ fontSize: '0.7rem', opacity: 0.8 }} title={txHash}>
+            {txHash.slice(0, 6)}...{txHash.slice(-6)}
+          </span>
+        </>
+      )}
     </span>
   );
 }
