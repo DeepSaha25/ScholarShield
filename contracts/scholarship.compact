@@ -42,6 +42,8 @@ export circuit verify_eligibility(): [] {
     const creds = student_credentials();
     
     // 2. Enforce rules against public ledger thresholds
+    assert(creds.gpa > 0, "GPA must be greater than 0");
+    assert(creds.income > 0, "Income must be greater than 0");
     assert(creds.gpa >= min_gpa, "GPA too low");
     assert(creds.income <= max_income, "Income too high");
     
