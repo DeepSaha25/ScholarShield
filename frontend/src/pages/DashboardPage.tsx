@@ -3,6 +3,7 @@ import { BarChart3, CheckCircle, XCircle, FileText, ExternalLink, Trash2 } from 
 import { getStats, getProofHistory, clearProofHistory } from '../lib/proofHistory';
 import type { ProofRecord } from '../lib/proofHistory';
 import { explorerTxUrl } from '../constants';
+import { ProofExport } from '../components/ProofExport';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({ total: 0, passed: 0, failed: 0 });
