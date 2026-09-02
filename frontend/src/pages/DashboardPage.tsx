@@ -122,9 +122,12 @@ export default function DashboardPage() {
                       </td>
                       <td style={{ padding: '1rem 0.5rem' }}>
                         {record.txId ? (
-                          <a href={explorerTxUrl(record.txId)} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-secondary)' }}>
-                            View <ExternalLink size={14} />
-                          </a>
+                          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                            <a href={explorerTxUrl(record.txId)} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-secondary)' }}>
+                              View <ExternalLink size={14} />
+                            </a>
+                            <ProofExport proofId={record.id} txHash={record.txId} timestamp={record.timestamp} />
+                          </div>
                         ) : '-'}
                       </td>
                     </tr>
