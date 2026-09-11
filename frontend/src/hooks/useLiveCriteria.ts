@@ -7,6 +7,11 @@ export function useLiveCriteria() {
   const { session } = useWallet();
   const [liveGpa, setLiveGpa] = useState<number>(MIN_GPA_THRESHOLD);
   const [liveIncome, setLiveIncome] = useState<number>(MAX_INCOME_THRESHOLD);
+  const [deadline, setDeadline] = useState<number>(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
+  const [maxClaims, setMaxClaims] = useState<number>(100);
+  const [totalClaims, setTotalClaims] = useState<number>(0);
+  const [isActive, setIsActive] = useState<boolean>(true);
+  
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,24 +30,40 @@ export function useLiveCriteria() {
 
       try {
         setIsLoading(true);
-        const contract = new Contract(session.providers);
         const state = await session.providers.publicDataProvider.queryContractState(PREPROD_CONTRACT_ADDRESS);
         
         if (state && state.data) {
-          // Attempt to extract values if possible. 
-          // Compact runtime provides a way to parse state, but simple extraction is needed here.
-          // Note: ledger values are decoded by contract methods in full setup. 
-          // If we can't decode easily here, we fallback gracefully.
-          // For now, we will fallback as this is a simulation.
-          // In a real dApp, we would parse `state.data` using the contract's generated ABI.
-          if (mounted) {
-            setLiveGpa(MIN_GPA_THRESHOLD);
-            setLiveIncome(MAX_INCOME_THRESHOLD);
+          try {
+            const { ledger } = await import('../managed/contract/index.js');
+            const l = ledger(state.data);
+            
+            if (mounted) {
+              setLiveGpa(Number(l.min_gpa));
+              setLiveIncome(Number(l.max_income));
+              setDeadline(Number(l.application_deadline));
+              setMaxClaims(Number(l.max_claims));
+              setTotalClaims(Number(l.total_claims));
+              setIsActive(Boolean(l.is_active));
+            }
+          } catch (decodeErr) {
+            console.error('Failed to decode ledger:', decodeErr);
+            if (mounted) {
+              setLiveGpa(MIN_GPA_THRESHOLD);
+              setLiveIncome(MAX_INCOME_THRESHOLD);
+              setDeadline(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
+              setMaxClaims(100);
+              setTotalClaims(0);
+              setIsActive(true);
+            }
           }
         } else {
           if (mounted) {
             setLiveGpa(MIN_GPA_THRESHOLD);
             setLiveIncome(MAX_INCOME_THRESHOLD);
+            setDeadline(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
+            setMaxClaims(100);
+            setTotalClaims(0);
+            setIsActive(true);
           }
         }
       } catch (err: any) {
@@ -51,6 +72,10 @@ export function useLiveCriteria() {
           setError(err.message);
           setLiveGpa(MIN_GPA_THRESHOLD);
           setLiveIncome(MAX_INCOME_THRESHOLD);
+          setDeadline(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
+          setMaxClaims(100);
+          setTotalClaims(0);
+          setIsActive(true);
         }
       } finally {
         if (mounted) {
@@ -66,5 +91,5 @@ export function useLiveCriteria() {
     };
   }, [session]);
 
-  return { liveGpa, liveIncome, isLoading, error };
+  return { liveGpa, liveIncome, deadline, maxClaims, totalClaims, isActive, isLoading, error };
 }

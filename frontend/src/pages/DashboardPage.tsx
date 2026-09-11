@@ -4,10 +4,13 @@ import { getStats, getProofHistory, clearProofHistory } from '../lib/proofHistor
 import type { ProofRecord } from '../lib/proofHistory';
 import { explorerTxUrl } from '../constants';
 import { ProofExport } from '../components/ProofExport';
+import { useLiveCriteria } from '../hooks/useLiveCriteria';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({ total: 0, passed: 0, failed: 0 });
   const [history, setHistory] = useState<ProofRecord[]>([]);
+  
+  const { deadline, maxClaims, totalClaims, isActive } = useLiveCriteria();
 
   useEffect(() => {
     setStats(getStats());
@@ -47,6 +50,30 @@ export default function DashboardPage() {
             <XCircle size={32} className="mx-auto mb-sm" style={{ color: '#ff4444' }} />
             <div className="text-3xl font-bold" style={{ color: '#ff4444' }}>{stats.failed}</div>
             <div className="text-secondary text-sm uppercase tracking-widest mt-xs">Ineligible</div>
+          </div>
+        </div>
+
+        <div className="card mb-lg" style={{ padding: '2rem' }}>
+          <h2 className="title-md mb-md">Scholarship Status</h2>
+          <div className="rules-grid">
+            <div className="rule-box">
+              <div className="rule-label">Status</div>
+              <div className="rule-value" style={{ color: isActive ? 'var(--accent-color)' : '#ff4444' }}>
+                {isActive ? 'Active' : 'Paused'}
+              </div>
+            </div>
+            <div className="rule-box">
+              <div className="rule-label">Application Deadline</div>
+              <div className="rule-value text-sm">
+                {new Date(deadline * 1000).toLocaleDateString()}
+              </div>
+            </div>
+            <div className="rule-box">
+              <div className="rule-label">Slots Remaining</div>
+              <div className="rule-value">
+                {Math.max(0, maxClaims - totalClaims)} / {maxClaims}
+              </div>
+            </div>
           </div>
         </div>
 

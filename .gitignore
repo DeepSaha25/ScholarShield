@@ -5,3 +5,9 @@ deployment.json
 /.midnight-expert
 .env.preview
 .env.preprod
+*.log
+*.bat
+compactc.zip
+compactc_linux/
+get-tx.js
+balance.ps1
