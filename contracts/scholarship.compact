@@ -93,12 +93,12 @@ export circuit update_criteria(
 // -----------------------------------------------------------------------------
 
 // Derives a public key hash from a secret key using a specific domain separator.
-pure circuit publicKey(sk: Bytes<32>): Bytes<32> {
+export pure circuit publicKey(sk: Bytes<32>): Bytes<32> {
     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "scholarship:admin:v1"), sk]);
 }
 
 // Derives an anonymous nullifier from a student ID.
 // Uses a different domain separator to avoid collisions.
-pure circuit makeNullifier(student_id: Bytes<32>): Bytes<32> {
+export pure circuit makeNullifier(student_id: Bytes<32>): Bytes<32> {
     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "scholarship:nullifier:v1"), student_id]);
 }

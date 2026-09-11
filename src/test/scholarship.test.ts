@@ -136,8 +136,10 @@ describe(`Scholarship Contract (${network})`, () => {
     providers = buildProviders(wallet, zkConfigPath, config);
     logger.info(`Providers initialized on '${network}'. Ready to test!`);
 
-    adminSk = crypto.randomBytes(32);
-    adminHash = pureCircuits.publicKey(adminSk);
+    adminSk = new Uint8Array(crypto.randomBytes(32));
+    adminHash = typeof (pureCircuits as any)?.publicKey === 'function'
+      ? (pureCircuits as any).publicKey(adminSk)
+      : new Uint8Array(crypto.randomBytes(32));
   });
 
   afterAll(async () => {
