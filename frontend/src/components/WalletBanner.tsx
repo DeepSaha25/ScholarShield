@@ -31,7 +31,7 @@ export default function WalletBanner() {
   return (
     <button
       className="btn btn-primary btn-sm"
-      onClick={() => connect()}
+      onClick={() => connect('preprod')}
       disabled={isConnecting || walletStatus === 'not-found'}
     >
       {isConnecting ? (

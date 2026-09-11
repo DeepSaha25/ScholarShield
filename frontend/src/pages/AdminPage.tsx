@@ -4,7 +4,7 @@ import { createUnprovenDeployTx, submitTxAsync } from '@midnight-ntwrk/midnight-
 import { sampleSigningKey } from '@midnight-ntwrk/compact-runtime';
 import { Contract } from '../managed/contract/index.js';
 import { useWallet } from '../contexts/WalletContext';
-import { Settings, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Settings, Loader2, CheckCircle, AlertCircle, Copy, ExternalLink } from 'lucide-react';
 import { MIN_GPA_THRESHOLD, MAX_INCOME_THRESHOLD } from '../config';
 
 function getCompiledContract() {
@@ -19,6 +19,7 @@ export default function AdminPage() {
   const [status, setStatus] = useState<'idle' | 'deploying' | 'deployed' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [deployedAddress, setDeployedAddress] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const isPreprod = session?.config?.networkId === 'Undeployed' 
     ? false 
@@ -54,10 +55,6 @@ export default function AdminPage() {
       setDeployedAddress(contractAddress);
       localStorage.setItem('PREPROD_CONTRACT_ADDRESS', contractAddress);
       setStatus('deployed');
-      
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
       
     } catch (e: any) {
       setStatus('error');
@@ -126,11 +123,37 @@ export default function AdminPage() {
                 Deploying... Please check your wallet extension
               </button>
             ) : (
-              <div className="result-box success mt-md">
-                <CheckCircle size={32} className="mb-sm" />
-                <div className="result-title">Successfully Deployed!</div>
-                <div className="result-tx font-mono">{deployedAddress}</div>
-                <div className="mt-sm text-sm opacity-80">Reloading application...</div>
+              <div className="result-box success mt-md" style={{ textAlign: 'left', wordBreak: 'break-all' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <CheckCircle size={24} style={{ color: '#00ffaa' }} />
+                  <div className="result-title" style={{ margin: 0 }}>Successfully Deployed to Preprod!</div>
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.4)', padding: '0.75rem', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'monospace', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                  <span>{deployedAddress}</span>
+                  <button 
+                    onClick={() => {
+                      if (deployedAddress) {
+                        navigator.clipboard.writeText(deployedAddress);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }
+                    }}
+                    style={{ background: 'none', border: 'none', color: copied ? '#00ffaa' : '#aaa', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+                  >
+                    <Copy size={16} />
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+                <div style={{ marginTop: '0.75rem' }}>
+                  <a
+                    href={`https://preprod.midnightexplorer.com/contracts/${deployedAddress}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#4da6ff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem' }}
+                  >
+                    View on Midnight Explorer <ExternalLink size={14} />
+                  </a>
+                </div>
               </div>
             )}
 

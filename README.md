@@ -34,7 +34,7 @@ ScholarShield is a decentralized application (dApp) engineered on the **Midnight
 ## Official Submission Links
 
 - **Live Application (Vercel):** [https://scholar-shield-ten.vercel.app/](https://scholar-shield-ten.vercel.app/)
-- **Deployed Contract:** [8fb4a94bac069985724fb1ad69bc549ef03a499071e5e79bb4a1697c8cc5d7d3](https://preview.midnightexplorer.com/contracts/8fb4a94bac069985724fb1ad69bc549ef03a499071e5e79bb4a1697c8cc5d7d3)
+- **Deployed Contract (Midnight Preprod):** [5a9cd8179b54c81863309dcfacd83f8207f0fc35a1ab79cc4ff524b334c8ae1e](https://preprod.midnightexplorer.com/contracts/5a9cd8179b54c81863309dcfacd83f8207f0fc35a1ab79cc4ff524b334c8ae1e)
 - **Demo Video Presentation:** [Watch on Google Drive](https://drive.google.com/file/d/1YUe91VBOKsM_-cpF4jBO_dhbyJyNmcWX/view?usp=sharing)
 - **Public Brand Presence (X Profile):** [https://x.com/georgian_deep](https://x.com/georgian_deep)
 
@@ -158,8 +158,8 @@ This repository fulfills the strict progression requirements of the "New Moon to
 ### Level 2: Frontend Integration
 - **Objective:** Develop a robust frontend interface and establish wallet connectivity.
 - **Status:** Complete. The application successfully interfaces with the 1AM wallet via the Midnight DApp Connector API.
-- **Deployed Contract Address:** 
-  [8fb4a94bac069985724fb1ad69bc549ef03a499071e5e79bb4a1697c8cc5d7d3](https://preview.midnightexplorer.com/contracts/8fb4a94bac069985724fb1ad69bc549ef03a499071e5e79bb4a1697c8cc5d7d3)
+- **Deployed Contract Address (Preprod):** 
+  [5a9cd8179b54c81863309dcfacd83f8207f0fc35a1ab79cc4ff524b334c8ae1e](https://preprod.midnightexplorer.com/contracts/5a9cd8179b54c81863309dcfacd83f8207f0fc35a1ab79cc4ff524b334c8ae1e)
 
 ### Level 3: Production-Grade dApp
 - **Objective:** Implement automated testing, Continuous Integration (CI/CD), and a polished user interface.
@@ -169,7 +169,7 @@ This repository fulfills the strict progression requirements of the "New Moon to
 - **Objective:** Deploy the frontend to a production CDN, finalize documentation, and establish a public brand presence.
 - **Status:** Complete.
   - **Live Application:** [https://scholar-shield-ten.vercel.app/](https://scholar-shield-ten.vercel.app/)
-  - **Deployed Contract:** [8fb4a94bac069985724fb1ad69bc549ef03a499071e5e79bb4a1697c8cc5d7d3](https://preview.midnightexplorer.com/contracts/8fb4a94bac069985724fb1ad69bc549ef03a499071e5e79bb4a1697c8cc5d7d3)
+  - **Deployed Contract (Preprod):** [5a9cd8179b54c81863309dcfacd83f8207f0fc35a1ab79cc4ff524b334c8ae1e](https://preprod.midnightexplorer.com/contracts/5a9cd8179b54c81863309dcfacd83f8207f0fc35a1ab79cc4ff524b334c8ae1e)
   - **Demo Video Presentation:** [Watch on Google Drive](https://drive.google.com/file/d/1YUe91VBOKsM_-cpF4jBO_dhbyJyNmcWX/view?usp=sharing)
   - **Public Brand Presence (X Profile):** [https://x.com/georgian_deep](https://x.com/georgian_deep)
 
