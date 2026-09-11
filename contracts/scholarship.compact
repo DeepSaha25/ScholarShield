@@ -10,6 +10,12 @@ export ledger max_income: Uint<32>;
 export ledger admin: Bytes<32>; // Hash commitment of admin's identity
 export ledger nullifiers: Set<Bytes<32>>; // Prevent double claims
 
+// Advanced Config
+export ledger application_deadline: Uint<64>; // Unix timestamp in seconds
+export ledger is_active: Boolean; // Emergency pause toggle
+export ledger max_claims: Uint<32>; // Cap on total scholarships awarded
+export ledger total_claims: Uint<32>; // Running counter of claims
+
 // -----------------------------------------------------------------------------
 // Private Witnesses (Supplied by the user off-chain)
 // -----------------------------------------------------------------------------
@@ -24,10 +30,14 @@ witness admin_secret_key(): Bytes<32>;
 // -----------------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------------
-constructor(initial_min_gpa: Uint<32>, initial_max_income: Uint<32>, initial_admin: Bytes<32>) {
+constructor(initial_min_gpa: Uint<32>, initial_max_income: Uint<32>, initial_admin: Bytes<32>, deadline: Uint<64>, claim_limit: Uint<32>) {
     min_gpa = disclose(initial_min_gpa);
     max_income = disclose(initial_max_income);
     admin = disclose(initial_admin);
+    application_deadline = disclose(deadline);
+    max_claims = disclose(claim_limit);
+    is_active = disclose(true);
+    total_claims = disclose(0);
 }
 
 // -----------------------------------------------------------------------------
@@ -35,34 +45,47 @@ constructor(initial_min_gpa: Uint<32>, initial_max_income: Uint<32>, initial_adm
 // -----------------------------------------------------------------------------
 
 // Verifies eligibility based on private credentials without revealing them.
-// NOTE: Uint<32> caps at 4,294,967,295. GPA is scaled ×100 (0–1000).
-// Client-side UI validation should enforce gpa <= 1000 to save gas.
 export circuit verify_eligibility(): [] {
-    // 1. Pull private credentials from the witness
+    // 1. Contract state checks
+    assert(disclose(is_active), "Applications are currently paused");
+    assert(blockTimeLt(disclose(application_deadline)), "Application deadline has passed");
+    assert(disclose(total_claims) < disclose(max_claims), "Scholarship cap reached");
+
+    // 2. Pull private credentials from the witness
     const creds = student_credentials();
     
-    // 2. Enforce rules against public ledger thresholds
+    // 3. Enforce rules against public ledger thresholds
     assert(creds.gpa > 0, "GPA must be greater than 0");
     assert(creds.income > 0, "Income must be greater than 0");
     assert(creds.gpa >= min_gpa, "GPA too low");
     assert(creds.income <= max_income, "Income too high");
     
-    // 3. Generate a nullifier to prevent double-claiming
+    // 4. Generate a nullifier to prevent double-claiming
     const nul = makeNullifier(creds.student_id);
     assert(!nullifiers.member(disclose(nul)), "Already verified");
     
-    // 4. Record the nullifier publicly
+    // 5. Record the nullifier publicly and increment claims
     nullifiers.insert(disclose(nul));
+    total_claims = disclose(total_claims + 1);
 }
 
 // Allows the admin to update scholarship criteria.
 // Requires proof of ownership of the admin_secret_key.
-export circuit update_criteria(new_min_gpa: Uint<32>, new_max_income: Uint<32>): [] {
+export circuit update_criteria(
+    new_min_gpa: Uint<32>, 
+    new_max_income: Uint<32>, 
+    new_deadline: Uint<64>, 
+    new_max_claims: Uint<32>, 
+    new_active_status: Boolean
+): [] {
     const sk = admin_secret_key();
     assert(admin == publicKey(sk), "Not authorized");
     
     min_gpa = disclose(new_min_gpa);
     max_income = disclose(new_max_income);
+    application_deadline = disclose(new_deadline);
+    max_claims = disclose(new_max_claims);
+    is_active = disclose(new_active_status);
 }
 
 // -----------------------------------------------------------------------------

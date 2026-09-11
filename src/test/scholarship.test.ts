@@ -154,12 +154,15 @@ describe(`Scholarship Contract (${network})`, () => {
     const minGpa = 800n;
     const maxIncome = 250000n;
 
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
+    const claimLimit = 100n;
+
     const deployed: DeployedContract<Contract> =
       await (deployContract<Contract>)(providers, {
         compiledContract: CompiledScholarshipContract,
         privateStateId: PRIVATE_STATE_ID,
         initialPrivateState: {},
-        args: [minGpa, maxIncome, adminHash],
+        args: [minGpa, maxIncome, adminHash, deadline, claimLimit],
       });
 
     contractAddress = deployed.deployTxData.public.contractAddress;
@@ -248,7 +251,7 @@ describe(`Scholarship Contract (${network})`, () => {
       contractAddress,
       privateStateId: PRIVATE_STATE_ID,
       circuitId: 'update_criteria',
-      args: [newMinGpa, newMaxIncome],
+      args: [newMinGpa, newMaxIncome, BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60), 200n, true],
       witnesses: {
         student_credentials: () => ({ gpa: 0n, income: 0n, student_id: new Uint8Array(32) }),
         admin_secret_key: () => adminSk,
@@ -272,7 +275,7 @@ describe(`Scholarship Contract (${network})`, () => {
         contractAddress,
         privateStateId: PRIVATE_STATE_ID,
         circuitId: 'update_criteria',
-        args: [900n, 100000n],
+        args: [900n, 100000n, BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60), 100n, true],
         witnesses: {
           student_credentials: () => ({ gpa: 0n, income: 0n, student_id: new Uint8Array(32) }),
           admin_secret_key: () => fakeAdminSk, // Fake signature
