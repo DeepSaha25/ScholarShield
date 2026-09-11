@@ -66,7 +66,7 @@ export circuit verify_eligibility(): [] {
     
     // 5. Record the nullifier publicly and increment claims
     nullifiers.insert(disclose(nul));
-    total_claims = disclose(total_claims + 1);
+    total_claims = disclose((total_claims + 1) as Uint<32>);
 }
 
 // Allows the admin to update scholarship criteria.
