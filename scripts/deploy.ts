@@ -73,6 +73,10 @@ async function main() {
     const minGpa = 800n;
     const maxIncome = 250000n;
     
+    // Add deadline (30 days from now) and claim cap
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
+    const claimLimit = 100n;
+    
     // Generate an admin key for this deployment
     const crypto = await import('crypto');
     const { pureCircuits } = await import('../contracts/index.js');
@@ -84,7 +88,7 @@ async function main() {
       compiledContract: CompiledScholarshipContract,
       privateStateId: PRIVATE_STATE_ID,
       initialPrivateState: {},
-      args: [minGpa, maxIncome, adminHash],
+      args: [minGpa, maxIncome, adminHash, deadline, claimLimit],
     });
 
     const address = deployed.deployTxData.public.contractAddress;

@@ -17,7 +17,7 @@ if (Test-Path $envFile) {
 }
 
 # Increase Node.js memory limit to prevent Out Of Memory errors during wallet sync
-$env:NODE_OPTIONS = "--max-old-space-size=8192"
+$env:NODE_OPTIONS = "--max-old-space-size=16384"
 
 # Run the deployment script using npx and vite-node
 npx vite-node scripts/deploy.ts
