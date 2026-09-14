@@ -13,10 +13,10 @@ import DashboardPage from './pages/DashboardPage';
 export default function App() {
   return (
     <Router>
-      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-900">
         <NavBar />
         
-        <main className="main-content" style={{ flex: '1 0 auto' }}>
+        <main className="flex-1 w-full max-w-6xl mx-auto pt-6 px-4 sm:px-6">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/verify" element={<VerifyPage />} />

@@ -1,75 +1,113 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Code, Globe, Mail } from 'lucide-react';
+import { Shield, Code, Globe, Mail, Copy, Check, ExternalLink } from 'lucide-react';
 import { PREPROD_CONTRACT_ADDRESS } from '../config';
 
 export default function Footer() {
+  const [copied, setCopied] = useState(false);
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(PREPROD_CONTRACT_ADDRESS);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <footer className="border-t mt-xl py-xl" style={{ borderTop: '1px solid var(--border-color)', marginTop: '4rem', padding: '3rem 0', backgroundColor: '#0a0a0a' }}>
-      <div className="max-w-7xl mx-auto px-md grid grid-cols-1 md:grid-cols-4 gap-xl" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', padding: '0 2rem' }}>
+    <footer className="border-t border-slate-200/80 mt-24 py-16 bg-white/70 backdrop-blur-md relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
         
         {/* Brand Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <Link to="/" className="flex items-center gap-xs" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: '#fff' }}>
-            <Shield className="text-accent" size={24} style={{ color: 'var(--accent-color)' }} />
-            <span className="font-bold text-lg" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>ScholarShield</span>
+        <div className="flex flex-col gap-4">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
+              <Shield size={18} />
+            </div>
+            <span className="font-extrabold text-xl text-slate-900 tracking-tight">ScholarShield</span>
           </Link>
-          <p className="text-secondary text-sm" style={{ fontSize: '0.9rem', color: '#888' }}>
-            Privacy-preserving eligibility verification built on the Midnight Network using Zero-Knowledge proofs.
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Privacy-preserving eligibility verification built on Midnight Network using Compact Zero-Knowledge circuits.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-            <a href="https://github.com/DeepSaha25/ScholarShield" target="_blank" rel="noopener noreferrer" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Code size={20} /></a>
-            <a href="https://scholar-shield-ten.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Globe size={20} /></a>
-            <a href="https://x.com/georgian_deep" target="_blank" rel="noopener noreferrer" className="text-secondary hover-text-accent" style={{ color: '#888', transition: 'color 0.2s' }}><Mail size={20} /></a>
+          <div className="flex gap-3 mt-1">
+            <a 
+              href="https://github.com/DeepSaha25/ScholarShield" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 flex items-center justify-center transition-colors"
+              title="GitHub Repository"
+            >
+              <Code size={18} />
+            </a>
+            <a 
+              href="https://scholar-shield-ten.vercel.app/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 flex items-center justify-center transition-colors"
+              title="Live Deployment"
+            >
+              <Globe size={18} />
+            </a>
+            <a 
+              href="https://x.com/georgian_deep" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 flex items-center justify-center transition-colors"
+              title="Contact / X"
+            >
+              <Mail size={18} />
+            </a>
           </div>
         </div>
 
         {/* Links Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <h4 style={{ color: '#fff', fontWeight: 'bold', marginBottom: '0.5rem' }}>Application</h4>
-          <Link to="/" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem' }}>Home</Link>
-          <Link to="/verify" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem' }}>Verify Eligibility</Link>
-          <Link to="/about" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem' }}>How it Works</Link>
-          <Link to="/admin" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem' }}>Admin Portal</Link>
+        <div className="flex flex-col gap-3">
+          <h4 className="text-slate-900 font-bold text-sm tracking-wider uppercase mb-1">Navigation</h4>
+          <Link to="/" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium">Home</Link>
+          <Link to="/verify" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium">Verify Eligibility</Link>
+          <Link to="/dashboard" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium">Proof Dashboard</Link>
+          <Link to="/about" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium">How It Works</Link>
+          <Link to="/admin" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium">Admin Portal</Link>
         </div>
 
         {/* Resources Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <h4 style={{ color: '#fff', fontWeight: 'bold', marginBottom: '0.5rem' }}>Resources</h4>
-          <a href="https://midnight.network/" target="_blank" rel="noopener noreferrer" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem' }}>Midnight Network</a>
-          <a href="https://docs.midnight.network/" target="_blank" rel="noopener noreferrer" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem' }}>Documentation</a>
-          <a href="https://github.com/midnight-ntwrk" target="_blank" rel="noopener noreferrer" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem' }}>GitHub</a>
+        <div className="flex flex-col gap-3">
+          <h4 className="text-slate-900 font-bold text-sm tracking-wider uppercase mb-1">Midnight Docs</h4>
+          <a href="https://midnight.network/" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium inline-flex items-center gap-1.5">
+            <span>Midnight Network</span>
+            <ExternalLink size={13} className="text-slate-400" />
+          </a>
+          <a href="https://docs.midnight.network/" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium inline-flex items-center gap-1.5">
+            <span>Developer Docs</span>
+            <ExternalLink size={13} className="text-slate-400" />
+          </a>
+          <a href="https://github.com/midnight-ntwrk" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-emerald-600 transition-colors text-sm font-medium inline-flex items-center gap-1.5">
+            <span>Compact Toolchain</span>
+            <ExternalLink size={13} className="text-slate-400" />
+          </a>
         </div>
 
         {/* Status Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <h4 style={{ color: '#fff', fontWeight: 'bold', marginBottom: '0.5rem' }}>Network Status</h4>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-color)', boxShadow: '0 0 8px var(--accent-color)' }}></span>
-            <span style={{ color: '#888', fontSize: '0.9rem' }}>Preprod Live</span>
+        <div className="flex flex-col gap-3">
+          <h4 className="text-slate-900 font-bold text-sm tracking-wider uppercase mb-1">Preprod Status</h4>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-xs font-bold text-emerald-700 w-fit">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Preprod Testnet Active</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <span style={{ padding: '0.25rem 0.5rem', backgroundColor: 'rgba(0,255,102,0.1)', color: 'var(--accent-color)', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid rgba(0,255,102,0.2)' }}>
-              v1.0.0
-            </span>
-          </div>
-          <div style={{ marginTop: '0.5rem' }}>
-            <span style={{ color: '#666', fontSize: '0.8rem', display: 'block', marginBottom: '0.25rem' }}>Contract Address</span>
+
+          <div className="mt-2">
+            <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
+              <span>Contract Address:</span>
+              <button 
+                onClick={copyAddress}
+                className="text-emerald-600 hover:text-emerald-700 font-bold inline-flex items-center gap-1"
+                title="Copy Address"
+              >
+                {copied ? <Check size={12} /> : <Copy size={12} />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
             <div 
-              style={{ 
-                color: '#888', 
-                fontSize: '0.75rem',
-                fontFamily: 'monospace',
-                backgroundColor: '#111',
-                padding: '0.5rem',
-                borderRadius: '4px',
-                border: '1px solid #333',
-                wordBreak: 'break-all',
-                maxWidth: '200px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
+              className="text-slate-700 text-xs font-mono bg-slate-100/90 p-2.5 rounded-xl border border-slate-200 truncate select-all cursor-pointer hover:border-emerald-300 transition-colors"
+              onClick={copyAddress}
               title={PREPROD_CONTRACT_ADDRESS}
             >
               {PREPROD_CONTRACT_ADDRESS}
@@ -79,9 +117,9 @@ export default function Footer() {
 
       </div>
 
-      <div style={{ borderTop: '1px solid #1a1a1a', marginTop: '3rem', paddingTop: '1.5rem', textAlign: 'center' }}>
-        <p style={{ color: '#666', fontSize: '0.85rem' }}>
-          &copy; {new Date().getFullYear()} ScholarShield. Built for the New Moon to Full Hackathon.
+      <div className="border-t border-slate-200/60 mt-12 pt-6 text-center relative z-10 px-4">
+        <p className="text-slate-500 text-xs sm:text-sm">
+          &copy; {new Date().getFullYear()} ScholarShield. Built for the Midnight New Moon to Full Hackathon by Deep Saha.
         </p>
       </div>
     </footer>

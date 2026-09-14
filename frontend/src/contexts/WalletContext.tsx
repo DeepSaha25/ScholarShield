@@ -21,6 +21,7 @@ type WalletContextType = {
   isConnecting: boolean;
   walletStatus: WalletStatus;
   session: ConnectedSession | null;
+  connectionError: string | null;
   connect: (network?: string) => Promise<ConnectedSession | undefined>;
   disconnect: () => void;
 };
@@ -40,6 +41,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [walletStatus, setWalletStatus] = useState<WalletStatus>('checking');
   const [session, setSession] = useState<ConnectedSession | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const connectingRef = useRef(false);
 
   // Poll for wallet injection — runs once on mount
@@ -79,6 +81,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     if (connectingRef.current) return;
     connectingRef.current = true;
     setIsConnecting(true);
+    setConnectionError(null);
     try {
       const wallet =
         (window as any).midnight?.['1am'] ?? (window as any).midnight?.mnLace ?? (window as any).midnight?.nightly;
@@ -89,8 +92,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       setAddress(sess.unshieldedAddress);
       setIsConnected(true);
       return sess;
-    } catch (e) {
+    } catch (e: any) {
       console.error('Wallet connection failed:', e);
+      let errorMsg = e?.message ?? String(e);
+      if (errorMsg.includes('Wallet is syncing')) {
+        errorMsg = 'Wallet is syncing — please open the 1AM extension and wait for sync to finish.';
+      }
+      setConnectionError(errorMsg);
       return undefined;
     } finally {
       connectingRef.current = false;
@@ -104,6 +112,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     setAddress(null);
     setIsConnected(false);
     setSession(null);
+    setConnectionError(null);
     setWalletStatus('checking');
     setWalletType(null);
     // Clean up any previous disconnect poll
@@ -133,6 +142,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         isConnecting,
         walletStatus,
         session,
+        connectionError,
         connect,
         disconnect,
       }}
