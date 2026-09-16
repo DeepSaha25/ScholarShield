@@ -105,13 +105,17 @@ export function useVerifySubmit(
         addToast('error', 'Circuit constraint failed: Ineligible.');
       } else {
         setStatus('error');
-        setErrorMsg(msg);
+        let friendlyMsg = msg;
+        if (msg.includes('check') && msg.includes('Request failed')) {
+          friendlyMsg = "1AM wallet could not submit transaction to Preprod. Please ensure your 1AM wallet is synced, unlocked, and has testnet tNIGHT (DUST) for transaction fees.";
+        }
+        setErrorMsg(friendlyMsg);
         saveProof({
           result: 'error',
           gpaRange: `${Math.floor(gpaValue)}-${Math.ceil(gpaValue)}`,
           incomeRange: `${Math.floor(incomeValue / 50000) * 50}k-${Math.ceil(incomeValue / 50000) * 50}k`,
         });
-        addToast('error', 'An error occurred during verification.');
+        addToast('error', friendlyMsg);
       }
     } finally {
       isProcessing.current = false;
